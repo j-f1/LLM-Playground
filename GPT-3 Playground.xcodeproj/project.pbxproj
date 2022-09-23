@@ -11,6 +11,8 @@
 		8539E90A28DD32970065F160 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8539E90928DD32970065F160 /* ContentView.swift */; };
 		8539E90C28DD32990065F160 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 8539E90B28DD32990065F160 /* Assets.xcassets */; };
 		8539E91028DD32990065F160 /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 8539E90F28DD32990065F160 /* Preview Assets.xcassets */; };
+		8539E91728DD34050065F160 /* ModelConfig.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8539E91628DD34050065F160 /* ModelConfig.swift */; };
+		8539E91B28DD3DA10065F160 /* ConfigView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8539E91A28DD3DA10065F160 /* ConfigView.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -20,6 +22,8 @@
 		8539E90B28DD32990065F160 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		8539E90D28DD32990065F160 /* GPT_3_Playground.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = GPT_3_Playground.entitlements; sourceTree = "<group>"; };
 		8539E90F28DD32990065F160 /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
+		8539E91628DD34050065F160 /* ModelConfig.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ModelConfig.swift; sourceTree = "<group>"; };
+		8539E91A28DD3DA10065F160 /* ConfigView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConfigView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -54,6 +58,8 @@
 			children = (
 				8539E90728DD32970065F160 /* GPT_3_PlaygroundApp.swift */,
 				8539E90928DD32970065F160 /* ContentView.swift */,
+				8539E91A28DD3DA10065F160 /* ConfigView.swift */,
+				8539E91628DD34050065F160 /* ModelConfig.swift */,
 				8539E90B28DD32990065F160 /* Assets.xcassets */,
 				8539E90D28DD32990065F160 /* GPT_3_Playground.entitlements */,
 				8539E90E28DD32990065F160 /* Preview Content */,
@@ -139,7 +145,9 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				8539E91B28DD3DA10065F160 /* ConfigView.swift in Sources */,
 				8539E90A28DD32970065F160 /* ContentView.swift in Sources */,
+				8539E91728DD34050065F160 /* ModelConfig.swift in Sources */,
 				8539E90828DD32970065F160 /* GPT_3_PlaygroundApp.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -279,7 +287,7 @@
 				"INFOPLIST_KEY_UIStatusBarStyle[sdk=iphonesimulator*]" = UIStatusBarStyleDefault;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
-				IPHONEOS_DEPLOYMENT_TARGET = 16.1;
+				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
 				LD_RUNPATH_SEARCH_PATHS = "@executable_path/Frameworks";
 				"LD_RUNPATH_SEARCH_PATHS[sdk=macosx*]" = "@executable_path/../Frameworks";
 				MACOSX_DEPLOYMENT_TARGET = 12.6;
@@ -317,7 +325,7 @@
 				"INFOPLIST_KEY_UIStatusBarStyle[sdk=iphonesimulator*]" = UIStatusBarStyleDefault;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
-				IPHONEOS_DEPLOYMENT_TARGET = 16.1;
+				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
 				LD_RUNPATH_SEARCH_PATHS = "@executable_path/Frameworks";
 				"LD_RUNPATH_SEARCH_PATHS[sdk=macosx*]" = "@executable_path/../Frameworks";
 				MACOSX_DEPLOYMENT_TARGET = 12.6;
