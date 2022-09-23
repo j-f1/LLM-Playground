@@ -13,6 +13,7 @@
 		8539E91028DD32990065F160 /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 8539E90F28DD32990065F160 /* Preview Assets.xcassets */; };
 		8539E91728DD34050065F160 /* ModelConfig.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8539E91628DD34050065F160 /* ModelConfig.swift */; };
 		8539E91B28DD3DA10065F160 /* ConfigView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8539E91A28DD3DA10065F160 /* ConfigView.swift */; };
+		8539E91D28DD50A00065F160 /* Completer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8539E91C28DD50A00065F160 /* Completer.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -24,6 +25,8 @@
 		8539E90F28DD32990065F160 /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
 		8539E91628DD34050065F160 /* ModelConfig.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ModelConfig.swift; sourceTree = "<group>"; };
 		8539E91A28DD3DA10065F160 /* ConfigView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConfigView.swift; sourceTree = "<group>"; };
+		8539E91C28DD50A00065F160 /* Completer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Completer.swift; sourceTree = "<group>"; };
+		8539E91E28DD5E610065F160 /* GPT-3-Playground-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = "GPT-3-Playground-Info.plist"; sourceTree = SOURCE_ROOT; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -56,9 +59,11 @@
 		8539E90628DD32970065F160 /* GPT-3 Playground */ = {
 			isa = PBXGroup;
 			children = (
+				8539E91E28DD5E610065F160 /* GPT-3-Playground-Info.plist */,
 				8539E90728DD32970065F160 /* GPT_3_PlaygroundApp.swift */,
 				8539E90928DD32970065F160 /* ContentView.swift */,
 				8539E91A28DD3DA10065F160 /* ConfigView.swift */,
+				8539E91C28DD50A00065F160 /* Completer.swift */,
 				8539E91628DD34050065F160 /* ModelConfig.swift */,
 				8539E90B28DD32990065F160 /* Assets.xcassets */,
 				8539E90D28DD32990065F160 /* GPT_3_Playground.entitlements */,
@@ -145,6 +150,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				8539E91D28DD50A00065F160 /* Completer.swift in Sources */,
 				8539E91B28DD3DA10065F160 /* ConfigView.swift in Sources */,
 				8539E90A28DD32970065F160 /* ContentView.swift in Sources */,
 				8539E91728DD34050065F160 /* ModelConfig.swift in Sources */,
@@ -277,6 +283,7 @@
 				ENABLE_HARDENED_RUNTIME = YES;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = "GPT-3-Playground-Info.plist";
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphoneos*]" = YES;
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphonesimulator*]" = YES;
 				"INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents[sdk=iphoneos*]" = YES;
@@ -315,6 +322,7 @@
 				ENABLE_HARDENED_RUNTIME = YES;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = "GPT-3-Playground-Info.plist";
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphoneos*]" = YES;
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphonesimulator*]" = YES;
 				"INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents[sdk=iphoneos*]" = YES;

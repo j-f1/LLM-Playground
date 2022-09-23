@@ -22,9 +22,11 @@ where Format.FormatInput == Value, Format.FormatOutput == String, SliderValue.St
 #if os(iOS)
             LabeledContent(title) {
                 TextField(prompt, value: $value, format: format)
+                    .multilineTextAlignment(.trailing)
             }
 #else
             TextField(title, value: $value, format: format, prompt: Text(prompt))
+                .multilineTextAlignment(.trailing)
 #endif
             slider
         }
@@ -45,17 +47,10 @@ extension SliderField where Value == Double, SliderValue == Value, Format == Flo
 struct ConfigView: View {
     @Binding var config: Configuration
     @Environment(\.dismiss) var dismiss
+    @AppStorage("API Key") var apiKey = ""
 
     var body: some View {
         Form {
-            Section {
-                Picker("Model", selection: $config.model) {
-                    ForEach(Configuration.Model.allCases, id: \.self) { model in
-                        Text("\(model.rawValue)").tag(model)
-                    }
-                }
-            }
-
             SliderField(
                 title: "Maximum Tokens", prompt: "256",
                 value: $config.maxTokens,
@@ -71,7 +66,7 @@ struct ConfigView: View {
             SliderField(
                 title: "Temperature", prompt: "0.7",
                 value: $config.temperature,
-                range: 0...1
+                range: 0...2
             )
 
             SliderField(
@@ -91,8 +86,20 @@ struct ConfigView: View {
                 value: $config.frequencyPenalty,
                 range: -2...2
             )
+
+            Section {
+                Picker("Model", selection: $config.model) {
+                    ForEach(Configuration.Model.allCases, id: \.self) { model in
+                        Text("\(model.rawValue)").tag(model)
+                    }
+                }
+            }
+
+            Section("API Key") {
+                SecureField("abcd1234", text: $apiKey)
+                    .keyboardType(.asciiCapable)
+            }
         }
-        .multilineTextAlignment(.trailing)
 #if os(iOS)
         .keyboardType(.numberPad)
         .navigationBarTitleDisplayMode(.inline)

@@ -8,12 +8,42 @@
 import SwiftUI
 
 struct ContentView: View {
-    @State var text = "Write a tagline for an ice cream shop."
     @State var showingConfig = false
+    @State var showingResponse = false
     @State var config = Configuration()
+    @StateObject var completer = Completer()
+    @Environment(\.openURL) var openURL
+
+    func complete() {
+        completer.complete(config, openURL: openURL)
+    }
+
+    @ViewBuilder
+    var completeButton: some View {
+        switch completer.status {
+        case .idle:
+            Button(action: complete) {
+                Label("Complete", systemImage: "play.fill")
+            }
+        case .fetching:
+            ProgressView()
+        case .done(let response):
+            Button(action: complete) {
+                Label("Complete", systemImage: "play.fill")
+            }.sheet(isPresented: $showingResponse) {
+                (Text(response.prompt).bold() + Text(response.result))			
+                    .onDisappear {
+                        completer.status = .idle
+                    }
+                let _ = print(response.usage)
+            }.onAppear {
+                showingResponse = true
+            }
+        }
+    }
     var body: some View {
 #if os(iOS)
-        TextEditor(text: $text)
+        TextEditor(text: $config.prompt)
             .toolbar {
                 ToolbarItem(placement: .navigation) {
                     Button(action: { showingConfig = true }) {
@@ -21,22 +51,20 @@ struct ContentView: View {
                     }
                 }
                 ToolbarItem(placement: .primaryAction) {
-                    Button(action: { }) {
-                        Label("Complete", systemImage: "play.fill")
-                    }
+                    completeButton
                 }
             }
             .sheet(isPresented: $showingConfig) {
-                ConfigView(config: $config)
+                NavigationStack {
+                    ConfigView(config: $config)
+                }
             }
 #else
         HSplitView {
-            TextEditor(text: $text)
+            TextEditor(text: $config.prompt)
                 .toolbar {
                     ToolbarItem(placement: .primaryAction) {
-                        Button(action: { }) {
-                            Label("Complete", systemImage: "play.fill")
-                        }
+                        completeButton
                     }
                 }
                 .frame(minWidth: 300)
