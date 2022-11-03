@@ -31,7 +31,7 @@ struct ContentView: View {
             Button(action: complete) {
                 Label("Complete", systemImage: "play.fill")
             }.sheet(isPresented: $showingResponse) {
-                (Text(response.prompt).bold() + Text(response.result))			
+                (Text(response.prompt).bold() + Text(response.result))
                     .onDisappear {
                         completer.status = .idle
                     }
