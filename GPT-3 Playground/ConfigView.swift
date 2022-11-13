@@ -27,6 +27,7 @@ where Format.FormatInput == Value, Format.FormatOutput == String, SliderValue.St
 #else
             TextField(title, value: $value, format: format, prompt: Text(prompt))
                 .multilineTextAlignment(.trailing)
+                .keyboardType(.decimalPad)
 #endif
             slider
         }
