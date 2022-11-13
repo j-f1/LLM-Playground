@@ -14,6 +14,7 @@
 		8539E91728DD34050065F160 /* ModelConfig.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8539E91628DD34050065F160 /* ModelConfig.swift */; };
 		8539E91B28DD3DA10065F160 /* ConfigView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8539E91A28DD3DA10065F160 /* ConfigView.swift */; };
 		8539E91D28DD50A00065F160 /* Completer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8539E91C28DD50A00065F160 /* Completer.swift */; };
+		85E40C16292195F000E6258E /* ResponseView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 85E40C15292195F000E6258E /* ResponseView.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -27,6 +28,7 @@
 		8539E91A28DD3DA10065F160 /* ConfigView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConfigView.swift; sourceTree = "<group>"; };
 		8539E91C28DD50A00065F160 /* Completer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Completer.swift; sourceTree = "<group>"; };
 		8539E91E28DD5E610065F160 /* GPT-3-Playground-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = "GPT-3-Playground-Info.plist"; sourceTree = SOURCE_ROOT; };
+		85E40C15292195F000E6258E /* ResponseView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ResponseView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -62,6 +64,7 @@
 				8539E91E28DD5E610065F160 /* GPT-3-Playground-Info.plist */,
 				8539E90728DD32970065F160 /* GPT_3_PlaygroundApp.swift */,
 				8539E90928DD32970065F160 /* ContentView.swift */,
+				85E40C15292195F000E6258E /* ResponseView.swift */,
 				8539E91A28DD3DA10065F160 /* ConfigView.swift */,
 				8539E91C28DD50A00065F160 /* Completer.swift */,
 				8539E91628DD34050065F160 /* ModelConfig.swift */,
@@ -155,6 +158,7 @@
 				8539E90A28DD32970065F160 /* ContentView.swift in Sources */,
 				8539E91728DD34050065F160 /* ModelConfig.swift in Sources */,
 				8539E90828DD32970065F160 /* GPT_3_PlaygroundApp.swift in Sources */,
+				85E40C16292195F000E6258E /* ResponseView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
