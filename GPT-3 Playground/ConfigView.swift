@@ -23,11 +23,11 @@ where Format.FormatInput == Value, Format.FormatOutput == String, SliderValue.St
             LabeledContent(title) {
                 TextField(prompt, value: $value, format: format)
                     .multilineTextAlignment(.trailing)
+                    .keyboardType(.decimalPad)
             }
 #else
             TextField(title, value: $value, format: format, prompt: Text(prompt))
                 .multilineTextAlignment(.trailing)
-                .keyboardType(.decimalPad)
 #endif
             slider
         }
