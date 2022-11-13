@@ -31,11 +31,41 @@ struct ContentView: View {
             Button(action: complete) {
                 Label("Complete", systemImage: "play.fill")
             }.sheet(isPresented: $showingResponse) {
-                (Text(response.prompt).bold() + Text(response.result))
+                NavigationStack {
+                    GeometryReader { geom in
+                        ScrollView {
+                            (Text(response.prompt).bold() + Text(response.result))
+                                .frame(minHeight: geom.size.height - geom.safeAreaInsets.bottom - geom.safeAreaInsets.top)
+                                .padding()
+                        }.frame(width: geom.size.width)
+                    }
                     .onDisappear {
                         completer.status = .idle
                     }
-                let _ = print(response.usage)
+                    .toolbar {
+                        ToolbarItem(placement: .bottomBar) {
+                            Button(action: { UIPasteboard.general.string = response.prompt + response.result }) {
+                                Label("Copy", systemImage: "doc.on.doc")
+                            }
+                        }
+                        ToolbarItem(placement: .status) {
+                            VStack {
+                                let cost = Double(response.usage.totalTokens) * config.model.cost / 1000
+                                Text("Cost: $\(cost, format: .number.precision(.fractionLength(2)))") + Text("\((cost - floor(cost)) * 1e5, format: .number.precision(.integerAndFractionLength(integer: 3, fraction: 0)))").foregroundColor(.secondary)
+                                Text("Completion tokens: \(response.usage.totalTokens)")
+                                    .foregroundColor(.secondary)
+                            }
+                        }
+                        ToolbarItem(placement: .bottomBar) {
+                            Button(action: {
+                                config.prompt = response.prompt + response.result
+                                showingResponse = false
+                            }) {
+                                Label("Insert", systemImage: "text.insert")
+                            }
+                        }
+                    }
+                }
             }.onAppear {
                 showingResponse = true
             }
