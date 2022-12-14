@@ -96,10 +96,14 @@ struct ConfigView: View {
                 }
             }
 
+            #if os(iOS)
             Section("API Key") {
                 SecureField("abcd1234", text: $apiKey)
                     .keyboardType(.asciiCapable)
             }
+            #else
+            SecureField("API Key", text: $apiKey, prompt: Text("abcd1234"))
+            #endif
         }
 #if os(iOS)
         .keyboardType(.numberPad)

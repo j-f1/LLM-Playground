@@ -31,11 +31,18 @@ struct ContentView: View {
             Button(action: complete) {
                 Label("Complete", systemImage: "play.fill")
             }.sheet(isPresented: $showingResponse) {
-                NavigationStack {
+                if #available(macOS 13.0, *) {
+                    NavigationStack {
+                        ResponseView(response: response, config: $config)
+                            .onDisappear {
+                                completer.status = .idle
+                            }
+                    }
+                } else {
                     ResponseView(response: response, config: $config)
-                }
-                .onDisappear {
-                    completer.status = .idle
+                        .onDisappear {
+                            completer.status = .idle
+                        }
                 }
             }.onAppear {
                 showingResponse = true

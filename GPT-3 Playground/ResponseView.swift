@@ -46,8 +46,21 @@ struct ResponseView: View {
             }.frame(width: geom.size.width)
         }
         .toolbar {
-            ToolbarItem(placement: .bottomBar) {
-                Button(action: { UIPasteboard.general.string = response.prompt + response.result }) {
+            #if os(iOS)
+            let placement = ToolbarItemPlacement.bottomBar
+            #else
+            let placement = ToolbarItemPlacement.automatic
+            #endif
+            ToolbarItem(placement: placement) {
+                Button(action: {
+                    let value = response.prompt + response.result
+                    #if os(iOS)
+                    UIPasteboard.general.string = value
+                    #else
+                    NSPasteboard.general.clearContents()
+                    NSPasteboard.general.setString(value, forType: .string)
+                    #endif
+                }) {
                     Label("Copy", systemImage: "doc.on.doc")
                 }
             }
@@ -59,7 +72,7 @@ struct ResponseView: View {
                         .foregroundColor(.secondary)
                 }
             }
-            ToolbarItem(placement: .bottomBar) {
+            ToolbarItem(placement: placement) {
                 Menu {
                     Button(action: {
                         config.prompt = response.prompt + response.result
@@ -74,6 +87,11 @@ struct ResponseView: View {
                     }
                 } label: {
                     Label("More", systemImage: "ellipsis.circle")
+                }
+            }
+            ToolbarItem(placement: .confirmationAction) {
+                Button("Done") {
+                    dismiss()
                 }
             }
         }

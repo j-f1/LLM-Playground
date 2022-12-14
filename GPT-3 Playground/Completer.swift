@@ -61,12 +61,19 @@ class Completer: ObservableObject {
 
             var shortcutsURL = URL(string: "shortcuts://x-callback-url/run-shortcut")!
             let markdownText = "**\(configuration.prompt.split(separator: "\n").joined(separator: "**\n**"))**\(response.result)"
-            shortcutsURL.append(queryItems: [
+            let items: [URLQueryItem] = [
                 .init(name: "name", value: "GPT-3 Logbook"),
                 .init(name: "input", value: "text"),
                 .init(name: "text", value: markdownText),
                 .init(name: "x-success", value: "gpt-3://")
-            ])
+            ]
+            if #available(macOS 13.0, *) {
+                shortcutsURL.append(queryItems: items)
+            } else {
+                var components = URLComponents(url: shortcutsURL, resolvingAgainstBaseURL: true)!
+                components.queryItems = items
+                shortcutsURL = components.url!
+            }
             openURL(shortcutsURL)
         } catch {
             print(String(data: data, encoding: .utf8) ?? "<no data>")
