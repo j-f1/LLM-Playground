@@ -12,7 +12,7 @@ struct Configuration: Encodable {
 
     var model = Model.davinci
     enum Model: String, CaseIterable, Encodable {
-        case davinci = "text-davinci-002"
+        case davinci = "text-davinci-003"
         case curie = "text-curie-001"
         case babbage = "text-babbage-001"
         case ada = "text-ada-001"
