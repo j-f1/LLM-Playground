@@ -74,10 +74,6 @@ struct ResponseView: View {
                 .font(font.font)
         )
 
-#if os(macOS)
-            .frame(minWidth: 400, minHeight: 300)
-#endif
-
         #if os(iOS)
         GeometryReader { geom in
             ScrollView {
@@ -110,16 +106,29 @@ struct ResponseView: View {
             }
         }
         #else
-        HStack {
+        HStack(spacing: 0) {
             ScrollView {
-                resultText.padding()
+                HStack {
+                    resultText
+                        .frame(minWidth: 300, idealWidth: 400)
+                        .padding()
+                        .textSelection(.enabled)
+                    Spacer(minLength: 0)
+                }
             }
+            .frame(minHeight: 300)
+            .layoutPriority(1)
+            Divider()
             VStack {
                 costLabel
                 Spacer()
-                fontPicker
-                    .pickerStyle(.radioGroup)
-                    .labelStyle(.titleOnly)
+                VStack(alignment: .leading, spacing: 4) {
+                    Text("Font").font(.headline)
+                    fontPicker
+                        .pickerStyle(.radioGroup)
+                        .labelStyle(.titleOnly)
+                        .labelsHidden()
+                }
                 Spacer()
                 copyButton
                 Spacer()
@@ -130,9 +139,10 @@ struct ResponseView: View {
                     }.keyboardShortcut(.defaultAction)
                 }
             }
+            .fixedSize(horizontal: true, vertical: false)
             .padding()
             .background(.regularMaterial)
-        }
+        }.frame(minWidth: 676)
         #endif
     }
 }

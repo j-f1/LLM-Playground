@@ -24,9 +24,9 @@ struct ContentView: View {
         case .idle:
             Button(action: complete) {
                 Label("Complete", systemImage: "play.fill")
-            }
+            }.keyboardShortcut("R")
         case .fetching:
-            ProgressView()
+            ProgressView().controlSize(.small)
         case .done(let response):
             Button(action: complete) {
                 Label("Complete", systemImage: "play.fill")
@@ -46,7 +46,7 @@ struct ContentView: View {
                 }
             }.onAppear {
                 showingResponse = true
-            }
+            }.keyboardShortcut("R")
         }
     }
     var body: some View {

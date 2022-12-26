@@ -25,11 +25,20 @@ where Format.FormatInput == Value, Format.FormatOutput == String, SliderValue.St
                     .multilineTextAlignment(.trailing)
                     .keyboardType(.decimalPad)
             }
+            slider
 #else
             TextField(title, value: $value, format: format, prompt: Text(prompt))
                 .multilineTextAlignment(.trailing)
+            if #available(macOS 13, *) {
+                LabeledContent {
+                    EmptyView()
+                } label: {
+                    slider
+                }
+            } else {
+                slider
+            }
 #endif
-            slider
         }
     }
 }
@@ -51,7 +60,7 @@ struct ConfigView: View {
     @AppStorage("API Key") var apiKey = ""
 
     var body: some View {
-        Form {
+        let form = Form {
             SliderField(
                 title: "Maximum Tokens", prompt: "256",
                 value: $config.maxTokens,
@@ -119,6 +128,12 @@ struct ConfigView: View {
         .padding()
 #endif
         .navigationTitle("Configuration")
+        
+        if #available(macOS 13, *) {
+            form.formStyle(.grouped)
+        } else {
+            form
+        }
     }
 }
 
