@@ -25,5 +25,8 @@ struct GPT_3_PlaygroundApp: App {
                 ContentView()
             }
         }
+        #if os(macOS)
+        .windowToolbarStyle(.unifiedCompact)
+        #endif
     }
 }

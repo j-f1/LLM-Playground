@@ -68,17 +68,23 @@ struct ContentView: View {
                 }
             }
 #else
-        HSplitView {
+        HStack(spacing: 0) {
             TextEditor(text: $config.prompt)
-                .toolbar {
-                    ToolbarItem(placement: .primaryAction) {
-                        completeButton
-                    }
-                }
                 .frame(minWidth: 300)
+                .padding()
+                .background(Color(nsColor: .textBackgroundColor))
+            Divider()
             ScrollView {
-                ConfigView(config: $config)
-                    .frame(minWidth: 300)
+                VStack {
+                    ConfigView(config: $config)
+                    Spacer()
+                }
+            }
+            .frame(width: 350)
+        }
+        .toolbar {
+            ToolbarItem(placement: .primaryAction) {
+                completeButton
             }
         }
 #endif
