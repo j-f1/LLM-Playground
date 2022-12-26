@@ -37,54 +37,68 @@ struct ResponseView: View {
     }
 
     var body: some View {
+        let copyButton = Button(action: {
+            let value = response.prompt + response.result
+            #if os(iOS)
+            UIPasteboard.general.string = value
+            #else
+            NSPasteboard.general.clearContents()
+            NSPasteboard.general.setString(value, forType: .string)
+            #endif
+        }) {
+            Label("Copy", systemImage: "doc.on.doc")
+        }
+
+        let promptButton = Button(action: {
+            config.prompt = response.prompt + response.result
+            dismiss()
+        }) {
+            Label("Set as Prompt", systemImage: "text.insert")
+        }
+
+        let fontPicker = Picker("Font", selection: $font) {
+            ForEach(FontType.allCases, id: \.self) { type in
+                Label(type.rawValue, systemImage: type.icon).tag(type)
+            }
+        }
+
+        let costLabel = Group {
+            let cost = Double(response.usage.totalTokens) * config.model.cost / 1000
+            Text("Cost: $\(cost, format: .number.precision(.fractionLength(2)))") + Text("\((cost - floor(cost)) * 1e5, format: .number.precision(.integerAndFractionLength(integer: 3, fraction: 0)))").foregroundColor(.secondary)
+            Text("Completion tokens: \(response.usage.totalTokens)")
+                .foregroundColor(.secondary)
+        }
+
+        let resultText = (
+            (Text(response.prompt).bold() + Text(response.result))
+                .font(font.font)
+        )
+
+#if os(macOS)
+            .frame(minWidth: 400, minHeight: 300)
+#endif
+
+        #if os(iOS)
         GeometryReader { geom in
             ScrollView {
-                (Text(response.prompt).bold() + Text(response.result))
-                    .font(font.font)
+                resultText
                     .frame(minHeight: geom.size.height - geom.safeAreaInsets.bottom - geom.safeAreaInsets.top)
                     .padding()
             }.frame(width: geom.size.width)
         }
         .toolbar {
-            #if os(iOS)
-            let placement = ToolbarItemPlacement.bottomBar
-            #else
-            let placement = ToolbarItemPlacement.automatic
-            #endif
-            ToolbarItem(placement: placement) {
-                Button(action: {
-                    let value = response.prompt + response.result
-                    #if os(iOS)
-                    UIPasteboard.general.string = value
-                    #else
-                    NSPasteboard.general.clearContents()
-                    NSPasteboard.general.setString(value, forType: .string)
-                    #endif
-                }) {
-                    Label("Copy", systemImage: "doc.on.doc")
-                }
+            ToolbarItem(placement: .bottomBar) {
+                copyButton
             }
             ToolbarItem(placement: .status) {
                 VStack {
-                    let cost = Double(response.usage.totalTokens) * config.model.cost / 1000
-                    Text("Cost: $\(cost, format: .number.precision(.fractionLength(2)))") + Text("\((cost - floor(cost)) * 1e5, format: .number.precision(.integerAndFractionLength(integer: 3, fraction: 0)))").foregroundColor(.secondary)
-                    Text("Completion tokens: \(response.usage.totalTokens)")
-                        .foregroundColor(.secondary)
+                    costLabel
                 }
             }
-            ToolbarItem(placement: placement) {
+            ToolbarItem(placement: .bottomBar) {
                 Menu {
-                    Button(action: {
-                        config.prompt = response.prompt + response.result
-                        dismiss()
-                    }) {
-                        Label("Set as Prompt", systemImage: "text.insert")
-                    }
-                    Picker("Font", selection: $font) {
-                        ForEach(FontType.allCases, id: \.self) { type in
-                            Label(type.rawValue, systemImage: type.icon).tag(type)
-                        }
-                    }
+                    promptButton
+                    fontPicker
                 } label: {
                     Label("More", systemImage: "ellipsis.circle")
                 }
@@ -95,6 +109,31 @@ struct ResponseView: View {
                 }
             }
         }
+        #else
+        HStack {
+            ScrollView {
+                resultText.padding()
+            }
+            VStack {
+                costLabel
+                Spacer()
+                fontPicker
+                    .pickerStyle(.radioGroup)
+                    .labelStyle(.titleOnly)
+                Spacer()
+                copyButton
+                Spacer()
+                HStack {
+                    promptButton
+                    Button("Dismiss") {
+                        dismiss()
+                    }.keyboardShortcut(.defaultAction)
+                }
+            }
+            .padding()
+            .background(.regularMaterial)
+        }
+        #endif
     }
 }
 
