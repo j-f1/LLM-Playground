@@ -74,7 +74,13 @@ class Completer: ObservableObject {
                 components.queryItems = items
                 shortcutsURL = components.url!
             }
+            #if os(macOS)
+            let config = NSWorkspace.OpenConfiguration()
+            config.activates = false
+            try await NSWorkspace.shared.open(shortcutsURL, configuration: config)
+            #else
             openURL(shortcutsURL)
+            #endif
         } catch {
             print(String(data: data, encoding: .utf8) ?? "<no data>")
             throw error
