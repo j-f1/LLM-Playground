@@ -60,7 +60,7 @@ struct ConfigView: View {
     @AppStorage("API Key") var apiKey = ""
 
     var body: some View {
-        let form = Form {
+        Form {
             SliderField(
                 title: "Maximum Tokens", prompt: "256",
                 value: $config.maxTokens,
@@ -124,16 +124,9 @@ struct ConfigView: View {
                 }
             }
         }
-#else
-        .padding()
 #endif
         .navigationTitle("Configuration")
-        
-        if #available(macOS 13, *) {
-            form.formStyle(.grouped)
-        } else {
-            form
-        }
+        .formStyle(.grouped)
     }
 }
 

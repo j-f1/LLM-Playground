@@ -80,7 +80,7 @@ struct ContentView: View {
                     Spacer()
                 }
             }
-            .frame(width: 350)
+            .frame(width: 300)
         }
         .toolbar {
             ToolbarItem(placement: .primaryAction) {
