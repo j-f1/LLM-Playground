@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct ResponseView: View {
-    let response: Completer.Status.Response
+    let response: OpenAIAPI.Status.Response
     @Binding var config: Configuration
 
     @Environment(\.dismiss) private var dismiss

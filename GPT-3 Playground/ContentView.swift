@@ -11,27 +11,27 @@ struct ContentView: View {
     @State var showingConfig = false
     @State var showingResponse = false
     @State var config = Configuration()
-    @StateObject var completer = Completer()
+    @StateObject var completer = OpenAIAPI()
     @Environment(\.openURL) var openURL
     @AppStorage("prompt") var savedPrompt = "Write a tagline for an ice cream shop."
 
-    func complete() {
+    func run() {
         savedPrompt = config.prompt
-        completer.complete(config, openURL: openURL)
+        completer.perform(config, openURL: openURL)
     }
 
     @ViewBuilder
     var completeButton: some View {
         switch completer.status {
         case .idle:
-            Button(action: complete) {
-                Label("Complete", systemImage: "play.fill")
+            Button(action: run) {
+                Label("Run", systemImage: "play.fill")
             }.keyboardShortcut("R")
         case .fetching:
             ProgressView().controlSize(.small)
         case .done(let response):
-            Button(action: complete) {
-                Label("Complete", systemImage: "play.fill")
+            Button(action: run) {
+                Label("Run", systemImage: "play.fill")
             }.sheet(isPresented: $showingResponse) {
                 if #available(macOS 13.0, *) {
                     NavigationStack {

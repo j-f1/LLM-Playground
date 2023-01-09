@@ -1,5 +1,5 @@
 //
-//  Completer.swift
+//  OpenAIAPI.swift
 //  GPT-3 Playground
 //
 //  Created by Jed Fox on 2022-09-22.
@@ -8,7 +8,7 @@
 import SwiftUI
 
 @MainActor
-class Completer: ObservableObject {
+class OpenAIAPI: ObservableObject {
     @Published var status = Status.idle
 
     enum Status: Equatable {
@@ -23,12 +23,12 @@ class Completer: ObservableObject {
         }
     }
 
-    func complete(_ configuration: Configuration, openURL: OpenURLAction) {
+    func perform(_ request: Configuration, openURL: OpenURLAction) {
         assert(status != .fetching)
         status = .fetching
         Task {
             do {
-                try await callAPI(configuration: configuration, openURL: openURL)
+                try await callAPI(request: request, openURL: openURL)
             } catch {
                 print(error)
                 status = .idle
@@ -47,7 +47,7 @@ class Completer: ObservableObject {
         encoder.keyDecodingStrategy = .convertFromSnakeCase
         return encoder
     }()
-    func callAPI(configuration: Configuration, openURL: OpenURLAction) async throws {
+    func callAPI(request configuration: Configuration, openURL: OpenURLAction) async throws {
         var request = URLRequest(url: endpoint)
         request.httpMethod = "POST"
         request.httpBody = try encoder.encode(configuration)
