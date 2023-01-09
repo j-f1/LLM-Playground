@@ -11,15 +11,15 @@ import SwiftUI
 class OpenAIAPI: ObservableObject {
     @Published var status = Status.idle
 
-    enum Status {
+    enum Status: Hashable {
         case idle
         case fetching
         case done(Response)
-        case failed(Error)
+        case failed(WrappedError)
 
-        struct Response: Equatable {
+        struct Response: Hashable {
             let prompt: Prompt
-            enum Prompt: Equatable {
+            enum Prompt: Hashable {
                 case complete(String)
                 case insert(before: String, after: String)
                 case edit(input: String, instruction: String)
@@ -40,6 +40,20 @@ class OpenAIAPI: ObservableObject {
             let result: String
             let usage: Usage
         }
+
+        final class WrappedError: Hashable {
+            let error: Error
+            init(_ error: Error) {
+                self.error = error
+            }
+            
+            static func == (lhs: WrappedError, rhs: WrappedError) -> Bool {
+                lhs === rhs
+            }
+            func hash(into hasher: inout Hasher) {
+                hasher.combine(ObjectIdentifier(self))
+            }
+        }
     }
 
     func perform(_ request: Configuration, openURL: OpenURLAction) {
@@ -52,7 +66,7 @@ class OpenAIAPI: ObservableObject {
                 try await callAPI(request: request, openURL: openURL)
             } catch {
                 print(error)
-                status = .failed(error)
+                status = .failed(Status.WrappedError(error))
             }
         }
     }
@@ -136,7 +150,7 @@ class OpenAIAPI: ObservableObject {
     }
 }
 
-struct Usage: Decodable, Equatable {
+struct Usage: Decodable, Hashable {
     let promptTokens: Int
     let completionTokens: Int
     let totalTokens: Int

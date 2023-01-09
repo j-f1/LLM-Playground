@@ -8,12 +8,21 @@
 import SwiftUI
 
 struct ContentView: View {
-    @State var showingConfig = false
-    @State var showingResponse = false
     @State var config = Configuration()
     @StateObject var completer = OpenAIAPI()
     @Environment(\.openURL) var openURL
     @AppStorage("prompt") var savedPrompt = "Write a tagline for an ice cream shop."
+
+    @State private var modal: Sheet?
+    private enum Sheet: Identifiable, Hashable {
+        case response(OpenAIAPI.Status.Response)
+        case error(OpenAIAPI.Status.WrappedError)
+        #if os(iOS)
+        case config
+        #endif
+
+        var id: Self { self }
+    }
 
     func run() {
         savedPrompt = config.prompt
@@ -22,45 +31,17 @@ struct ContentView: View {
 
     @ViewBuilder
     var completeButton: some View {
-        let button = Button(action: run) { Label("Run", systemImage: "play.fill") }
-            .keyboardShortcut("R")
-            .disabled(config.mode == .insert && !config.prompt.contains(String.insertToken))
         switch completer.status {
-        case .idle:
-            button
         case .fetching:
-            ProgressView().controlSize(.small)
-            #if os(macOS)
+            ProgressView()
+                #if os(macOS)
+                .controlSize(.small)
                 .padding(.trailing, 3)
-            #endif
-        case .done(let response):
-            button.sheet(isPresented: $showingResponse) {
-                if #available(macOS 13.0, *) {
-                    NavigationStack {
-                        ResponseView(response: response, config: $config)
-                            .onDisappear {
-                                completer.status = .idle
-                            }
-                    }
-                } else {
-                    ResponseView(response: response, config: $config)
-                        .onDisappear {
-                            completer.status = .idle
-                        }
-                }
-            }.onAppear {
-                showingResponse = true
-            }
-        case .failed(let error):
-            button.alert(isPresented: $showingResponse) {
-                Alert(
-                    title: (error as? OpenAIError).map { Text("Failed to run: \($0.type)") } ?? Text("Failed to run"),
-                    message: Text(error.localizedDescription),
-                    dismissButton: .cancel(Text("Dismiss"))
-                )
-            }.onAppear {
-                showingResponse = true
-            }
+                #endif
+        default:
+            Button(action: run) { Label("Run", systemImage: "play.fill") }
+                .keyboardShortcut("R")
+                .disabled(config.mode == .insert && !config.prompt.contains(String.insertToken))
         }
     }
     var body: some View {
@@ -93,16 +74,12 @@ struct ContentView: View {
             }
         }.toolbar {
             ToolbarItem(placement: .navigation) {
-                Button(action: { showingConfig = true }) {
+                Button(action: { modal = .config }) {
                     Label("Configuration", systemImage: "gearshape")
                 }
             }
             ToolbarItem(placement: .primaryAction) {
                 completeButton
-            }
-        }.sheet(isPresented: $showingConfig) {
-            NavigationStack {
-                ConfigView(config: $config)
             }
         }
 #else
@@ -144,6 +121,53 @@ struct ContentView: View {
         content
             .onAppear {
                 config = Configuration(prompt: savedPrompt)
+            }
+            .onChange(of: completer.status) { status in
+                switch status {
+                case .idle, .fetching:
+                    modal = nil
+                case .done(let response):
+                    modal = .response(response)
+                case .failed(let error):
+                    modal = .error(error)
+                }
+            }
+            .sheet(item: $modal) {
+                switch $0 {
+                case .response(let response):
+                    if #available(macOS 13.0, *) {
+                        NavigationStack {
+                            ResponseView(response: response, config: $config)
+                                .onDisappear {
+                                    completer.status = .idle
+                                }
+                        }
+                    } else {
+                        ResponseView(response: response, config: $config)
+                            .onDisappear {
+                                completer.status = .idle
+                            }
+                    }
+                case .error(let error):
+                    NavigationStack {
+                        VStack {
+                            Text(error.error.localizedDescription)
+                            if let error = error.error as? OpenAIError {
+                                Text("Error Code: ") + Text(error.type).font(.body.monospaced())
+                            }
+                        }
+                        .navigationTitle("Failed to Run")
+                    }.toolbar {
+                        Button("Done", role: .cancel) { modal = nil }
+                            .keyboardShortcut(.defaultAction)
+                    }
+                #if os(iOS)
+                case .config:
+                    NavigationStack {
+                        ConfigView(config: $config)
+                    }
+                #endif
+                }
             }
     }
 }
