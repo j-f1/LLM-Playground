@@ -14,6 +14,7 @@
 		8539E91728DD34050065F160 /* ModelConfig.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8539E91628DD34050065F160 /* ModelConfig.swift */; };
 		8539E91B28DD3DA10065F160 /* ConfigView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8539E91A28DD3DA10065F160 /* ConfigView.swift */; };
 		8539E91D28DD50A00065F160 /* OpenAIAPI.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8539E91C28DD50A00065F160 /* OpenAIAPI.swift */; };
+		859F3A82296C8ACA00E3F122 /* Defaults in Frameworks */ = {isa = PBXBuildFile; productRef = 859F3A81296C8ACA00E3F122 /* Defaults */; };
 		85E40C16292195F000E6258E /* ResponseView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 85E40C15292195F000E6258E /* ResponseView.swift */; };
 /* End PBXBuildFile section */
 
@@ -36,6 +37,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				859F3A82296C8ACA00E3F122 /* Defaults in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -99,6 +101,9 @@
 			dependencies = (
 			);
 			name = "GPT-3 Playground";
+			packageProductDependencies = (
+				859F3A81296C8ACA00E3F122 /* Defaults */,
+			);
 			productName = "GPT-3 Playground";
 			productReference = 8539E90428DD32970065F160 /* GPT-3 Playground.app */;
 			productType = "com.apple.product-type.application";
@@ -127,6 +132,9 @@
 				Base,
 			);
 			mainGroup = 8539E8FB28DD32970065F160;
+			packageReferences = (
+				859F3A80296C8ACA00E3F122 /* XCRemoteSwiftPackageReference "Defaults" */,
+			);
 			productRefGroup = 8539E90528DD32970065F160 /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
@@ -382,6 +390,25 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		859F3A80296C8ACA00E3F122 /* XCRemoteSwiftPackageReference "Defaults" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/sindresorhus/Defaults.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 6.0.0;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		859F3A81296C8ACA00E3F122 /* Defaults */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 859F3A80296C8ACA00E3F122 /* XCRemoteSwiftPackageReference "Defaults" */;
+			productName = Defaults;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = 8539E8FC28DD32970065F160 /* Project object */;
 }

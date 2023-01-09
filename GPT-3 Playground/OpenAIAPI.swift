@@ -97,7 +97,7 @@ class OpenAIAPI: ObservableObject {
     func callAPI(request configuration: Configuration, openURL: OpenURLAction) async throws {
         var request = URLRequest(url: endpoint(for: configuration))
         request.httpMethod = "POST"
-        request.httpBody = try encoder.encode(configuration)
+        request.httpBody = try encoder.encode(configuration.forAPI)
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
         request.setValue("Bearer \(UserDefaults.standard.string(forKey: "API Key") ?? "")", forHTTPHeaderField: "Authorization")
         let data = try await URLSession.shared.data(for: request).0

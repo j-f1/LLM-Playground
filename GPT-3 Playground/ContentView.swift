@@ -6,12 +6,16 @@
 //
 
 import SwiftUI
+import Defaults
+
+extension Defaults.Keys {
+    static let config = Defaults.Key("Configuration", default: Configuration())
+}
 
 struct ContentView: View {
-    @State var config = Configuration()
+    @Default(.config) var config
     @StateObject var completer = OpenAIAPI()
     @Environment(\.openURL) var openURL
-    @AppStorage("prompt") var savedPrompt = "Write a tagline for an ice cream shop."
     
     @FocusState var focusedEditField: EditField?
     @State var selectedTab = EditField.input
@@ -31,7 +35,6 @@ struct ContentView: View {
     }
 
     func run() {
-        savedPrompt = config.prompt
         completer.perform(config, openURL: openURL)
     }
 
@@ -132,9 +135,6 @@ struct ContentView: View {
         }
 #endif
         content
-            .onAppear {
-                config = Configuration(prompt: savedPrompt)
-            }
             .onChange(of: completer.status) { status in
                 switch status {
                 case .idle, .fetching:
