@@ -70,7 +70,11 @@ struct ConfigView: View {
                 .pickerStyle(.segmented)
                 .labelsHidden()
                 .textCase(nil)
+                #if os(iOS)
                 .padding(.horizontal, -16)
+                #else
+                .padding(.horizontal, -10)
+                #endif
             }
 
             if config.mode != .edit {
