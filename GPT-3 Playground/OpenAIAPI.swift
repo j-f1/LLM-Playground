@@ -11,10 +11,11 @@ import SwiftUI
 class OpenAIAPI: ObservableObject {
     @Published var status = Status.idle
 
-    enum Status: Equatable {
+    enum Status {
         case idle
         case fetching
         case done(Response)
+        case failed(Error)
 
         struct Response: Equatable {
             let prompt: Prompt
@@ -42,14 +43,16 @@ class OpenAIAPI: ObservableObject {
     }
 
     func perform(_ request: Configuration, openURL: OpenURLAction) {
-        assert(status != .fetching)
+        if case .fetching = status {
+            assertionFailure()
+        }
         status = .fetching
         Task {
             do {
                 try await callAPI(request: request, openURL: openURL)
             } catch {
                 print(error)
-                status = .idle
+                status = .failed(error)
             }
         }
     }
@@ -125,6 +128,9 @@ class OpenAIAPI: ObservableObject {
             #endif
         } catch {
             print(String(data: data, encoding: .utf8) ?? "<no data>")
+            if let response = try? decoder.decode(ErrorResponse.self, from: data) {
+                throw response.error
+            }
             throw error
         }
     }
@@ -142,5 +148,30 @@ private struct Response: Decodable {
     struct Choice: Decodable {
         let text: String
         let finishReason: String?
+    }
+}
+
+private struct ErrorResponse: Decodable {
+    let error: OpenAIError
+}
+
+struct OpenAIError: Error, Decodable, LocalizedError {
+    let message: String
+    let type: String
+    // also present: `param`, `code` of unknown type
+    
+    enum CodingKeys: String, CodingKey {
+        case message
+        case type
+    }
+    
+    init(from decoder: Decoder) throws {
+        let dict = try decoder.container(keyedBy: CodingKeys.self)
+        message = try dict.decode(String.self, forKey: .message)
+        type = try dict.decode(String.self, forKey: .type)
+    }
+    
+    var errorDescription: String? {
+        message
     }
 }

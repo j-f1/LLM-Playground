@@ -48,6 +48,16 @@ struct ContentView: View {
             }.onAppear {
                 showingResponse = true
             }
+        case .failed(let error):
+            button.alert(isPresented: $showingResponse) {
+                Alert(
+                    title: (error as? OpenAIError).map { Text("Failed to run: \($0.type)") } ?? Text("Failed to run"),
+                    message: Text(error.localizedDescription),
+                    dismissButton: .cancel(Text("Dismiss"))
+                )
+            }.onAppear {
+                showingResponse = true
+            }
         }
     }
     var body: some View {
