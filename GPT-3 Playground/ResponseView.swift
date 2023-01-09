@@ -99,9 +99,15 @@ struct ResponseView: View {
             case "stop":
                 return Text("")
             case "length":
+                #if os(iOS)
                 if let image = annotation.uiImage {
                     return Text(" \(Image(uiImage: image)) ").baselineOffset(-3)
                 }
+                #else
+                if let image = annotation.nsImage {
+                    return Text(" \(Image(nsImage: image)) ").baselineOffset(-3)
+                }
+                #endif
                 return Text(" \(Image(systemName: "exclamationmark.triangle.fill")) Exceeded Token Limit ")
                     .foregroundColor(.yellow)
             default:

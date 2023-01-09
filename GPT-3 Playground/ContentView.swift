@@ -184,7 +184,9 @@ struct ContentView: View {
                             .padding()
                         }
                         .navigationTitle("Failed to Run")
+                        #if os(iOS)
                         .navigationBarTitleDisplayMode(.inline)
+                        #endif
                         .toolbar {
                             ToolbarItem(placement: .confirmationAction) {
                                 Button("Done", role: .cancel) { modal = nil }
@@ -192,7 +194,12 @@ struct ContentView: View {
                             }
                         }
                     }
+                    #if os(iOS)
                     .presentationDetents([.medium])
+                    #else
+                    .frame(width: 400, height: 200)
+                    .textSelection(.enabled)
+                    #endif
                 #if os(iOS)
                 case .config:
                     NavigationStack {
