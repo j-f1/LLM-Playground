@@ -14,6 +14,21 @@ struct ResponseView: View {
     @Environment(\.dismiss) private var dismiss
     @AppStorage("Response Font") private var font = FontType.sans
 
+    @Environment(\.displayScale) private var displayScale
+    @StateObject private var annotation = ImageRenderer(content: AnnotationBadge())
+    private struct AnnotationBadge: View {
+        var body: some View {
+            Label("Exceeded Token Limit", systemImage: "exclamationmark.triangle")
+                .bold()
+                .symbolVariant(.fill)
+                .foregroundColor(.white)
+                .font(.caption2)
+                .padding(.horizontal, 3)
+                .padding(.vertical, 1)
+                .background(.yellow, in: RoundedRectangle(cornerRadius: 3))
+        }
+    }
+
     private enum FontType: String, Codable, CaseIterable {
         case sans = "Sans-Serif"
         case serif = "Serif"
@@ -79,14 +94,30 @@ struct ResponseView: View {
                 .foregroundColor(.secondary)
         }
 
-        let resultText = {() -> Text in
+        let reasonText = { () -> Text in
+            switch response.finishReason {
+            case "stop":
+                return Text("")
+            case "length":
+                if let image = annotation.uiImage {
+                    return Text(" \(Image(uiImage: image)) ").baselineOffset(-3)
+                }
+                return Text(" \(Image(systemName: "exclamationmark.triangle.fill")) Exceeded Token Limit ")
+                    .foregroundColor(.yellow)
+            default:
+                return Text(" [UNKNOWN FINISH REASON \(response.finishReason ?? "nil")] ")
+                    .foregroundColor(.indigo)
+            }
+        }()
+
+        let resultText = { () -> Text in
             switch response.prompt {
             case let .complete(prompt):
-                return Text(prompt).bold() + Text(response.result)
+                return Text(prompt).bold() + Text(response.result) + reasonText
             case let .insert(before, after):
-                return Text(before).bold() + Text(response.result) + Text(after).bold()
+                return Text(before).bold() + Text(response.result) + reasonText + Text(after).bold()
             case .edit:
-                return Text(response.result)
+                return Text(response.result) + reasonText
             }
         }().font(font.font)
 
@@ -121,6 +152,8 @@ struct ResponseView: View {
                 }
             }
         }
+        .onAppear { annotation.scale = displayScale }
+        .onChange(of: displayScale, perform: { annotation.scale = $0 })
         #else
         HStack(spacing: 0) {
             ScrollView {
@@ -158,7 +191,10 @@ struct ResponseView: View {
             .fixedSize(horizontal: true, vertical: false)
             .padding()
             .background(.regularMaterial)
-        }.frame(minWidth: 676)
+        }
+        .frame(minWidth: 676)
+        .onAppear { annotation.scale = displayScale }
+        .onChange(of: displayScale, perform: { annotation.scale = $0 })
         #endif
     }
 }

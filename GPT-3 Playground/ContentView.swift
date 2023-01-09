@@ -174,17 +174,25 @@ struct ContentView: View {
                     }
                 case .error(let error):
                     NavigationStack {
-                        VStack {
-                            Text(error.error.localizedDescription)
-                            if let error = error.error as? OpenAIError {
-                                Text("Error Code: ") + Text(error.type).font(.body.monospaced())
+                        ScrollView(.vertical) {
+                            VStack(alignment: .leading, spacing: 10) {
+                                Text(error.error.localizedDescription)
+                                if let error = error.error as? OpenAIError {
+                                    Text("Error Code: ") + Text(error.type).font(.body.monospaced())
+                                }
                             }
+                            .padding()
                         }
                         .navigationTitle("Failed to Run")
-                    }.toolbar {
-                        Button("Done", role: .cancel) { modal = nil }
-                            .keyboardShortcut(.defaultAction)
+                        .navigationBarTitleDisplayMode(.inline)
+                        .toolbar {
+                            ToolbarItem(placement: .confirmationAction) {
+                                Button("Done", role: .cancel) { modal = nil }
+                                    .keyboardShortcut(.defaultAction)
+                            }
+                        }
                     }
+                    .presentationDetents([.medium])
                 #if os(iOS)
                 case .config:
                     NavigationStack {

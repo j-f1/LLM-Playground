@@ -38,6 +38,7 @@ class OpenAIAPI: ObservableObject {
                 }
             }
             let result: String
+            let finishReason: String?
             let usage: Usage
         }
 
@@ -106,6 +107,7 @@ class OpenAIAPI: ObservableObject {
             let response = Status.Response(
                 prompt: .init(configuration),
                 result: rawResponse.choices[0].text,
+                finishReason: rawResponse.choices[0].finishReason,
                 usage: rawResponse.usage
             )
             self.status = .done(response)
