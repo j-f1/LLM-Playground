@@ -13,8 +13,10 @@ struct ContentView: View {
     @State var config = Configuration()
     @StateObject var completer = Completer()
     @Environment(\.openURL) var openURL
+    @AppStorage("prompt") var savedPrompt = "Write a tagline for an ice cream shop."
 
     func complete() {
+        savedPrompt = config.prompt
         completer.complete(config, openURL: openURL)
     }
 
@@ -67,6 +69,9 @@ struct ContentView: View {
                     ConfigView(config: $config)
                 }
             }
+            .onAppear {
+                config = Configuration(prompt: savedPrompt)
+            }
 #else
         HStack(spacing: 0) {
             TextEditor(text: $config.prompt)
@@ -86,6 +91,9 @@ struct ContentView: View {
             ToolbarItem(placement: .primaryAction) {
                 completeButton
             }
+        }
+        .onAppear {
+            config = Configuration(prompt: savedPrompt)
         }
 #endif
     }
