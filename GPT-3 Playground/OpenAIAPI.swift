@@ -17,7 +17,25 @@ class OpenAIAPI: ObservableObject {
         case done(Response)
 
         struct Response: Equatable {
-            let prompt: String
+            let prompt: Prompt
+            enum Prompt: Equatable {
+                case complete(String)
+                case insert(before: String, after: String)
+                case edit(input: String, instruction: String)
+                
+                
+                init(_ config: Configuration) {
+                    switch config.mode {
+                    case .complete:
+                        self = .complete(config.prompt)
+                    case .insert:
+                        let splits = config.prompt.split(separator: String.insertToken, maxSplits: 1)
+                        self = .insert(before: String(splits[0]), after: String(splits[1]))
+                    case .edit:
+                        self = .edit(input: config.prompt, instruction: config.instruction)
+                    }
+                }
+            }
             let result: String
             let usage: Usage
         }
@@ -36,7 +54,15 @@ class OpenAIAPI: ObservableObject {
         }
     }
 
-    private let endpoint = URL(string: "https://api.openai.com/v1/completions")!
+    private let baseEndpoint = URL(string: "https://api.openai.com/v1")!
+    private func endpoint(for configuration: Configuration) -> URL {
+        switch configuration.mode {
+        case .complete, .insert:
+            return baseEndpoint.appending(component: "completions")
+        case .edit:
+            return baseEndpoint.appending(component: "edits")
+        }
+    }
     private let encoder: JSONEncoder = {
         let encoder = JSONEncoder()
         encoder.keyEncodingStrategy = .convertToSnakeCase
@@ -47,8 +73,12 @@ class OpenAIAPI: ObservableObject {
         encoder.keyDecodingStrategy = .convertFromSnakeCase
         return encoder
     }()
+    
+    private func bold(_ s: String) -> String {
+        "**\(s.split(separator: "\n").joined(separator: "**\n**"))**"
+    }
     func callAPI(request configuration: Configuration, openURL: OpenURLAction) async throws {
-        var request = URLRequest(url: endpoint)
+        var request = URLRequest(url: endpoint(for: configuration))
         request.httpMethod = "POST"
         request.httpBody = try encoder.encode(configuration)
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
@@ -56,11 +86,23 @@ class OpenAIAPI: ObservableObject {
         let data = try await URLSession.shared.data(for: request).0
         do {
             let rawResponse = try decoder.decode(Response.self, from: data)
-            let response = Status.Response(prompt: configuration.prompt, result: rawResponse.choices[0].text, usage: rawResponse.usage)
+            let response = Status.Response(
+                prompt: .init(configuration),
+                result: rawResponse.choices[0].text,
+                usage: rawResponse.usage
+            )
             self.status = .done(response)
 
             var shortcutsURL = URL(string: "shortcuts://x-callback-url/run-shortcut")!
-            let markdownText = "**\(configuration.prompt.split(separator: "\n").joined(separator: "**\n**"))**\(response.result)"
+            let markdownText: String
+            switch response.prompt {
+            case let .complete(prompt):
+                markdownText = bold(prompt) + response.result
+            case let .insert(before, after):
+                markdownText = bold(before) + response.result + bold(after)
+            case let .edit(input, instructions):
+                markdownText = "Input: \(input)\n\nPrompt: \(instructions)\n\n\(response.result)"
+            }
             let items: [URLQueryItem] = [
                 .init(name: "name", value: "GPT-3 Logbook"),
                 .init(name: "input", value: "text"),
@@ -99,6 +141,6 @@ private struct Response: Decodable {
     let usage: Usage
     struct Choice: Decodable {
         let text: String
-        let finishReason: String
+        let finishReason: String?
     }
 }

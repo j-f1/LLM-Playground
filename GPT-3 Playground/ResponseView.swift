@@ -37,20 +37,30 @@ struct ResponseView: View {
     }
 
     var body: some View {
+        let combinedText = { () -> String in
+            switch response.prompt {
+            case let .complete(prompt):
+                return prompt + response.result
+            case let .insert(before, after):
+                return before + response.result + after
+            case .edit:
+                return response.result
+            }
+        }()
+
         let copyButton = Button(action: {
-            let value = response.prompt + response.result
             #if os(iOS)
-            UIPasteboard.general.string = value
+            UIPasteboard.general.string = combinedText
             #else
             NSPasteboard.general.clearContents()
-            NSPasteboard.general.setString(value, forType: .string)
+            NSPasteboard.general.setString(combinedText, forType: .string)
             #endif
         }) {
             Label("Copy", systemImage: "doc.on.doc")
         }
 
         let promptButton = Button(action: {
-            config.prompt = response.prompt + response.result
+            config.prompt = combinedText
             dismiss()
         }) {
             Label("Set as Prompt", systemImage: "text.insert")
@@ -69,10 +79,16 @@ struct ResponseView: View {
                 .foregroundColor(.secondary)
         }
 
-        let resultText = (
-            (Text(response.prompt).bold() + Text(response.result))
-                .font(font.font)
-        )
+        let resultText = {() -> Text in
+            switch response.prompt {
+            case let .complete(prompt):
+                return Text(prompt).bold() + Text(response.result)
+            case let .insert(before, after):
+                return Text(before).bold() + Text(response.result) + Text(after).bold()
+            case .edit:
+                return Text(response.result)
+            }
+        }().font(font.font)
 
         #if os(iOS)
         GeometryReader { geom in

@@ -22,17 +22,16 @@ struct ContentView: View {
 
     @ViewBuilder
     var completeButton: some View {
+        let button = Button(action: run) { Label("Run", systemImage: "play.fill") }
+            .keyboardShortcut("R")
+            .disabled(config.mode == .insert && !config.prompt.contains(String.insertToken))
         switch completer.status {
         case .idle:
-            Button(action: run) {
-                Label("Run", systemImage: "play.fill")
-            }.keyboardShortcut("R")
+            button
         case .fetching:
             ProgressView().controlSize(.small)
         case .done(let response):
-            Button(action: run) {
-                Label("Run", systemImage: "play.fill")
-            }.sheet(isPresented: $showingResponse) {
+            button.sheet(isPresented: $showingResponse) {
                 if #available(macOS 13.0, *) {
                     NavigationStack {
                         ResponseView(response: response, config: $config)
@@ -48,36 +47,73 @@ struct ContentView: View {
                 }
             }.onAppear {
                 showingResponse = true
-            }.keyboardShortcut("R")
+            }
         }
     }
     var body: some View {
 #if os(iOS)
-        TextEditor(text: $config.prompt)
-            .toolbar {
-                ToolbarItem(placement: .navigation) {
-                    Button(action: { showingConfig = true }) {
-                        Label("Configuration", systemImage: "gearshape")
+        let content = Group {
+            switch config.mode {
+            case .complete, .insert:
+                TextEditor(text: $config.prompt)
+            case .edit:
+                TabView {
+                    TextEditor(text: $config.prompt)
+                        .safeAreaInset(edge: .bottom) {
+                            Text("Input").font(.headline)
+                                .padding(.bottom, -2)
+                        }
+                    TextEditor(text: $config.instruction)
+                        .safeAreaInset(edge: .bottom) {
+                            Text("Instruction").font(.headline)
+                                .padding(.bottom, -2)
+                        }
+                }
+                .symbolVariant(.circle.fill)
+                .tabViewStyle(.page)
+                .padding(.bottom, 5)
+                .onAppear {
+                    UIPageControl.appearance().currentPageIndicatorTintColor = .label
+                    UIPageControl.appearance().pageIndicatorTintColor = .tertiaryLabel
+
+                }
+            }
+        }.toolbar {
+            ToolbarItem(placement: .navigation) {
+                Button(action: { showingConfig = true }) {
+                    Label("Configuration", systemImage: "gearshape")
+                }
+            }
+            ToolbarItem(placement: .primaryAction) {
+                completeButton
+            }
+        }.sheet(isPresented: $showingConfig) {
+            NavigationStack {
+                ConfigView(config: $config)
+            }
+        }
+#else
+        let content = HStack(spacing: 0) {
+            Group {
+                switch config.mode {
+                case .complete, .insert:
+                    TextEditor(text: $config.prompt)
+                        .padding(8)
+                case .edit:
+                    VSplitView {
+                        VStack(alignment: .leading) {
+                            TextEditorLabel(title: "Input")
+                            TextEditor(text: $config.prompt)
+                        }.padding(8)
+                        VStack(alignment: .leading) {
+                            TextEditorLabel(title: "Instruction")
+                            TextEditor(text: $config.instruction)
+                        }.padding(8)
                     }
                 }
-                ToolbarItem(placement: .primaryAction) {
-                    completeButton
-                }
             }
-            .sheet(isPresented: $showingConfig) {
-                NavigationStack {
-                    ConfigView(config: $config)
-                }
-            }
-            .onAppear {
-                config = Configuration(prompt: savedPrompt)
-            }
-#else
-        HStack(spacing: 0) {
-            TextEditor(text: $config.prompt)
-                .frame(minWidth: 300)
-                .padding()
-                .background(Color(nsColor: .textBackgroundColor))
+            .frame(minWidth: 300)
+            .background(Color(nsColor: .textBackgroundColor))
             Divider()
             ScrollView {
                 VStack {
@@ -86,16 +122,29 @@ struct ContentView: View {
                 }
             }
             .frame(width: 300)
-        }
-        .toolbar {
+        }.toolbar {
             ToolbarItem(placement: .primaryAction) {
                 completeButton
             }
         }
-        .onAppear {
-            config = Configuration(prompt: savedPrompt)
-        }
 #endif
+        content
+            .onAppear {
+                config = Configuration(prompt: savedPrompt)
+            }
+    }
+}
+
+struct TextEditorLabel: View {
+    let title: LocalizedStringKey
+    
+    var body: some View {
+        Text(title)
+            .textCase(.uppercase)
+            .font(.caption)
+            .fontWeight(.medium)
+            .padding(.leading, 4)
+            .foregroundColor(.secondary)
     }
 }
 
