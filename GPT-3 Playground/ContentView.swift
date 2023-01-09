@@ -77,7 +77,9 @@ struct ContentView: View {
                         .tag(EditField.instruction)
                 }
                 .onChange(of: selectedTab) {
-                    focusedEditField = $0
+                    if focusedEditField != nil {
+                        focusedEditField = $0
+                    }
                 }
                 .symbolVariant(.circle.fill)
                 .tabViewStyle(.page)
