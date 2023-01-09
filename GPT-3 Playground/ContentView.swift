@@ -30,6 +30,9 @@ struct ContentView: View {
             button
         case .fetching:
             ProgressView().controlSize(.small)
+            #if os(macOS)
+                .padding(.trailing, 3)
+            #endif
         case .done(let response):
             button.sheet(isPresented: $showingResponse) {
                 if #available(macOS 13.0, *) {
