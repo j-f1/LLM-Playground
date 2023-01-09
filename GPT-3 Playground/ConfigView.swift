@@ -134,6 +134,7 @@ struct ConfigView: View {
             SecureField("API Key", text: $apiKey, prompt: Text("abcd1234"))
             #endif
         }
+        .monospacedDigit()
         .animation(.default, value: config.mode)
 #if os(iOS)
         .keyboardType(.numberPad)
