@@ -48,9 +48,18 @@ struct ContentView: View {
                 .padding(.trailing, 3)
                 #endif
         default:
-            Button(action: run) { Label("Run", systemImage: "play.fill") }
-                .keyboardShortcut("R")
-                .disabled(config.mode == .insert && !config.prompt.contains(String.insertToken))
+            if config.mode == .insert, !config.prompt.contains(String.insertToken) {
+                HStack {
+                    Text("Missing \(Text("[insert]").font(.body.monospaced())) token")
+                        .foregroundColor(.secondary)
+                    Button(action: run) { Label("Run", systemImage: "play.fill") }
+                        .keyboardShortcut("R")
+                        .disabled(true)
+                }
+            } else {
+                Button(action: run) { Label("Run", systemImage: "play.fill") }
+                    .keyboardShortcut("R")
+            }
         }
     }
     var body: some View {
