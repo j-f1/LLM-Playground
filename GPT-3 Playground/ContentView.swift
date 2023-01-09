@@ -12,6 +12,12 @@ struct ContentView: View {
     @StateObject var completer = OpenAIAPI()
     @Environment(\.openURL) var openURL
     @AppStorage("prompt") var savedPrompt = "Write a tagline for an ice cream shop."
+    
+    @FocusState var focusedEditField: EditField?
+    @State var selectedTab = EditField.input
+    enum EditField {
+        case input, instruction
+    }
 
     @State private var modal: Sheet?
     private enum Sheet: Identifiable, Hashable {
@@ -51,17 +57,24 @@ struct ContentView: View {
             case .complete, .insert:
                 TextEditor(text: $config.prompt)
             case .edit:
-                TabView {
+                TabView(selection: $selectedTab) {
                     TextEditor(text: $config.prompt)
+                        .focused($focusedEditField, equals: .input)
                         .safeAreaInset(edge: .bottom) {
                             Text("Input").font(.headline)
                                 .padding(.bottom, -2)
                         }
+                        .tag(EditField.input)
                     TextEditor(text: $config.instruction)
+                        .focused($focusedEditField, equals: .instruction)
                         .safeAreaInset(edge: .bottom) {
                             Text("Instruction").font(.headline)
                                 .padding(.bottom, -2)
                         }
+                        .tag(EditField.instruction)
+                }
+                .onChange(of: selectedTab) {
+                    focusedEditField = $0
                 }
                 .symbolVariant(.circle.fill)
                 .tabViewStyle(.page)
