@@ -92,6 +92,10 @@ struct ResponseView: View {
             Text("Cost: $\(cost, format: .number.precision(.fractionLength(2)))") + Text("\((cost - floor(cost)) * 1e5, format: .number.precision(.integerAndFractionLength(integer: 3, fraction: 0)))").foregroundColor(.secondary)
             Text("Completion tokens: \(response.usage.totalTokens)")
                 .foregroundColor(.secondary)
+            if let duration = response.duration {
+                Text("Duration: \(duration, format: .duration)")
+                    .foregroundStyle(.tertiary)
+            }
         }
 
         let reasonText = { () -> Text in

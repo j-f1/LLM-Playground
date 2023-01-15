@@ -14,6 +14,7 @@
 		8539E91728DD34050065F160 /* ModelConfig.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8539E91628DD34050065F160 /* ModelConfig.swift */; };
 		8539E91B28DD3DA10065F160 /* ConfigView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8539E91A28DD3DA10065F160 /* ConfigView.swift */; };
 		8539E91D28DD50A00065F160 /* OpenAIAPI.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8539E91C28DD50A00065F160 /* OpenAIAPI.swift */; };
+		857AF7DF29744F1900BC67B3 /* DurationFormatStyle.swift in Sources */ = {isa = PBXBuildFile; fileRef = 857AF7DE29744F1800BC67B3 /* DurationFormatStyle.swift */; };
 		859F3A82296C8ACA00E3F122 /* Defaults in Frameworks */ = {isa = PBXBuildFile; productRef = 859F3A81296C8ACA00E3F122 /* Defaults */; };
 		85E40C16292195F000E6258E /* ResponseView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 85E40C15292195F000E6258E /* ResponseView.swift */; };
 /* End PBXBuildFile section */
@@ -29,6 +30,7 @@
 		8539E91A28DD3DA10065F160 /* ConfigView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConfigView.swift; sourceTree = "<group>"; };
 		8539E91C28DD50A00065F160 /* OpenAIAPI.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OpenAIAPI.swift; sourceTree = "<group>"; };
 		8539E91E28DD5E610065F160 /* GPT-3-Playground-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = "GPT-3-Playground-Info.plist"; sourceTree = SOURCE_ROOT; };
+		857AF7DE29744F1800BC67B3 /* DurationFormatStyle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DurationFormatStyle.swift; sourceTree = "<group>"; };
 		85E40C15292195F000E6258E /* ResponseView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ResponseView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -67,6 +69,7 @@
 				8539E90728DD32970065F160 /* GPT_3_PlaygroundApp.swift */,
 				8539E90928DD32970065F160 /* ContentView.swift */,
 				85E40C15292195F000E6258E /* ResponseView.swift */,
+				857AF7DE29744F1800BC67B3 /* DurationFormatStyle.swift */,
 				8539E91A28DD3DA10065F160 /* ConfigView.swift */,
 				8539E91C28DD50A00065F160 /* OpenAIAPI.swift */,
 				8539E91628DD34050065F160 /* ModelConfig.swift */,
@@ -163,6 +166,7 @@
 			files = (
 				8539E91D28DD50A00065F160 /* OpenAIAPI.swift in Sources */,
 				8539E91B28DD3DA10065F160 /* ConfigView.swift in Sources */,
+				857AF7DF29744F1900BC67B3 /* DurationFormatStyle.swift in Sources */,
 				8539E90A28DD32970065F160 /* ContentView.swift in Sources */,
 				8539E91728DD34050065F160 /* ModelConfig.swift in Sources */,
 				8539E90828DD32970065F160 /* GPT_3_PlaygroundApp.swift in Sources */,

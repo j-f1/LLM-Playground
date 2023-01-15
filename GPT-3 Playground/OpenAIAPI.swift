@@ -40,6 +40,7 @@ class OpenAIAPI: ObservableObject {
             let result: String
             let finishReason: String?
             let usage: Usage
+            let duration: Duration?
         }
 
         final class WrappedError: Hashable {
@@ -101,14 +102,18 @@ class OpenAIAPI: ObservableObject {
         request.httpBody = try encoder.encode(configuration.forAPI)
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
         request.setValue("Bearer \(UserDefaults.standard.string(forKey: "API Key") ?? "")", forHTTPHeaderField: "Authorization")
-        let data = try await URLSession.shared.data(for: request).0
+        let (data, response) = try await URLSession.shared.data(for: request)
+        guard let response = response as? HTTPURLResponse else { throw URLError(.badServerResponse) }
         do {
             let rawResponse = try decoder.decode(Response.self, from: data)
             let response = Status.Response(
                 prompt: .init(configuration),
                 result: rawResponse.choices[0].text,
                 finishReason: rawResponse.choices[0].finishReason,
-                usage: rawResponse.usage
+                usage: rawResponse.usage,
+                duration: response.value(forHTTPHeaderField: "openai-processing-ms")
+                    .flatMap { Int($0) }
+                    .map(Duration.milliseconds)
             )
             self.status = .done(response)
 
@@ -143,6 +148,9 @@ class OpenAIAPI: ObservableObject {
             openURL(shortcutsURL)
             #endif
         } catch {
+            for (header, value) in response.allHeaderFields {
+                print("\(header as! String): \(value)")
+            }
             print(String(data: data, encoding: .utf8) ?? "<no data>")
             if let response = try? decoder.decode(ErrorResponse.self, from: data) {
                 throw response.error
