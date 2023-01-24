@@ -100,7 +100,7 @@ struct ResponseView: View {
 
         let reasonText = { () -> Text in
             switch response.finishReason {
-            case "stop":
+            case "stop", nil:
                 return Text("")
             case "length":
                 #if os(iOS)
