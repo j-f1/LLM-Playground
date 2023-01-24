@@ -30,8 +30,14 @@ class OpenAIAPI: ObservableObject {
                     case .complete:
                         self = .complete(config.prompt)
                     case .insert:
-                        let splits = config.prompt.split(separator: String.insertToken, maxSplits: 1)
-                        self = .insert(before: String(splits[0]), after: String(splits[1]))
+                        if config.prompt.hasPrefix(String.insertToken) {
+                            self = .insert(before: "", after: String(config.prompt.dropFirst(String.insertToken.count)))
+                        } else if config.prompt.hasSuffix(String.insertToken) {
+                            self = .insert(before: String(config.prompt.dropLast(String.insertToken.count)), after: "")
+                        } else {
+                            let splits = config.prompt.split(separator: String.insertToken, maxSplits: 1)
+                            self = .insert(before: String(splits[0]), after: String(splits[1]))
+                        }
                     case .edit:
                         self = .edit(input: config.prompt, instruction: config.instruction)
                     }
@@ -162,7 +168,7 @@ class OpenAIAPI: ObservableObject {
 
 struct Usage: Decodable, Hashable {
     let promptTokens: Int
-    let completionTokens: Int
+    let completionTokens: Int?
     let totalTokens: Int
 }
 
