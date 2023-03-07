@@ -33,6 +33,7 @@ struct Configuration: Codable, Defaults.Serializable {
 
     var model = Model.davinci
     enum Model: String, CaseIterable, Codable {
+//        case chat = "gpt-3.5-turbo"
         case davinci = "text-davinci-003"
         case curie = "text-curie-001"
         case babbage = "text-babbage-001"
@@ -54,6 +55,7 @@ struct Configuration: Codable, Defaults.Serializable {
         /// per 1k tokens
         var cost: Double {
             switch self {
+//            case .chat: return 0.0020
             case .davinci: return 0.0200
             case .curie: return 0.0020
             case .babbage: return 0.0005
@@ -63,6 +65,7 @@ struct Configuration: Codable, Defaults.Serializable {
 
         var maxTokens: Int {
             switch self {
+//            case .chat: return 4096
             case .davinci: return 4000
             case .ada, .babbage, .curie: return 2048
             }
