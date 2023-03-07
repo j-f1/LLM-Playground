@@ -102,6 +102,20 @@ struct ResponseView: View {
                     .font(.caption)
                     #endif
             }
+            #if os(macOS)
+            Label("\(config.temperature, format: .number.precision(.fractionLength(2)))", systemImage: {
+                if config.temperature < 0.5 {
+                    return "thermometer.snowflake"
+                }
+                if config.temperature < 1 {
+                    return "thermometer.low"
+                }
+                if config.temperature < 1.5 {
+                    return "thermometer.medium"
+                }
+                return "thermometer.high"
+            }())
+            #endif
         }
 
         let reasonText = { () -> Text in
