@@ -87,7 +87,7 @@ struct ConfigView: View {
                         config.maxTokens = Int(pow($0, 2))
                     },
                     format: .number,
-                    range: 1...sqrt(config.model == .davinci ? 4096 : 2048)
+                    range: 1...sqrt(Double(config.model.maxTokens))
                 )
             }
 

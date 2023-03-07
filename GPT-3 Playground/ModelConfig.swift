@@ -60,6 +60,13 @@ struct Configuration: Codable, Defaults.Serializable {
             case .ada: return 0.0004
             }
         }
+
+        var maxTokens: Int {
+            switch self {
+            case .davinci: return 4000
+            case .ada, .babbage, .curie: return 2048
+            }
+        }
     }
 
     var maxTokens = 256
