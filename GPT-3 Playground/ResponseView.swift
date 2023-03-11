@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct ResponseView: View {
-    let response: OpenAIAPI.Status.Response
+    let response: LLaMAInvoker.Status.Response
     @Binding var config: Configuration
 
     @Environment(\.dismiss) private var dismiss
@@ -52,16 +52,7 @@ struct ResponseView: View {
     }
 
     var body: some View {
-        let combinedText = { () -> String in
-            switch response.prompt {
-            case let .complete(prompt):
-                return prompt + response.result
-            case let .insert(before, after):
-                return before + response.result + after
-            case .edit:
-                return response.result
-            }
-        }()
+        let combinedText = config.prompt + response.result
 
         let copyButton = Button(action: {
             #if os(iOS)
@@ -88,9 +79,7 @@ struct ResponseView: View {
         }
 
         let costLabel = Group {
-            let cost = Double(response.usage.totalTokens) * config.model.cost / 1000
-            Text("Cost: $\(cost, format: .number.precision(.fractionLength(2)))") + Text("\((cost - floor(cost)) * 1e5, format: .number.precision(.integerAndFractionLength(integer: 3, fraction: 0)))").foregroundColor(.secondary)
-            Text("Completion tokens: \(response.usage.totalTokens)")
+            Text("Completion tokens: \(config.tokens)")
                 .foregroundColor(.secondary)
                 #if os(iOS)
                 .font(.caption)
@@ -118,38 +107,7 @@ struct ResponseView: View {
             #endif
         }
 
-        let reasonText = { () -> Text in
-            switch response.finishReason {
-            case "stop", nil:
-                return Text("")
-            case "length":
-                #if os(iOS)
-                if let image = annotation.uiImage {
-                    return Text(" \(Image(uiImage: image)) ").baselineOffset(-3)
-                }
-                #else
-                if let image = annotation.nsImage {
-                    return Text(" \(Image(nsImage: image)) ").baselineOffset(-3)
-                }
-                #endif
-                return Text(" \(Image(systemName: "exclamationmark.triangle.fill")) Exceeded Token Limit ")
-                    .foregroundColor(.yellow)
-            default:
-                return Text(" [UNKNOWN FINISH REASON \(response.finishReason ?? "nil")] ")
-                    .foregroundColor(.indigo)
-            }
-        }()
-
-        let resultText = { () -> Text in
-            switch response.prompt {
-            case let .complete(prompt):
-                return Text(prompt).bold() + Text(response.result) + reasonText
-            case let .insert(before, after):
-                return Text(before).bold() + Text(response.result) + reasonText + Text(after).bold()
-            case .edit:
-                return Text(response.result) + reasonText
-            }
-        }().font(font.font)
+        let resultText = (Text(config.prompt).bold() + Text(response.result)).font(font.font)
 
         #if os(iOS)
         GeometryReader { geom in

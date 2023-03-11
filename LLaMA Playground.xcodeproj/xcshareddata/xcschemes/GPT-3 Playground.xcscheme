@@ -15,9 +15,9 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "8539E90328DD32970065F160"
-               BuildableName = "GPT-3 Playground.app"
-               BlueprintName = "GPT-3 Playground"
-               ReferencedContainer = "container:GPT-3 Playground.xcodeproj">
+               BuildableName = "LLaMA Playground.app"
+               BlueprintName = "LLaMA Playground"
+               ReferencedContainer = "container:LLaMA Playground.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
       </BuildActionEntries>
@@ -45,9 +45,9 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "8539E90328DD32970065F160"
-            BuildableName = "GPT-3 Playground.app"
-            BlueprintName = "GPT-3 Playground"
-            ReferencedContainer = "container:GPT-3 Playground.xcodeproj">
+            BuildableName = "LLaMA Playground.app"
+            BlueprintName = "LLaMA Playground"
+            ReferencedContainer = "container:LLaMA Playground.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
    </LaunchAction>
@@ -62,9 +62,9 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "8539E90328DD32970065F160"
-            BuildableName = "GPT-3 Playground.app"
-            BlueprintName = "GPT-3 Playground"
-            ReferencedContainer = "container:GPT-3 Playground.xcodeproj">
+            BuildableName = "LLaMA Playground.app"
+            BlueprintName = "LLaMA Playground"
+            ReferencedContainer = "container:LLaMA Playground.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
    </ProfileAction>

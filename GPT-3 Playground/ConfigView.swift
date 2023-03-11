@@ -61,35 +61,18 @@ struct ConfigView: View {
 
     var body: some View {
         Form {
-            Section {} header: {
-                Picker("Mode", selection: $config.mode) {
-                    ForEach(Configuration.Mode.allCases, id: \.self) { mode in
-                        Text(mode.label).tag(mode)
-                    }
-                }
-                .pickerStyle(.segmented)
-                .labelsHidden()
-                .textCase(nil)
-                #if os(iOS)
-                .padding(.horizontal, -16)
-                #else
-                .padding(.horizontal, -10)
-                #endif
-            }
-
-            if config.mode != .edit {
-                SliderField(
-                    title: "Maximum Tokens", prompt: "256",
-                    value: $config.maxTokens,
-                    sliderValue: Binding {
-                        sqrt(Double(config.maxTokens))
-                    } set: {
-                        config.maxTokens = Int(pow($0, 2))
-                    },
-                    format: .number,
-                    range: 1...sqrt(Double(config.model.maxTokens))
-                )
-            }
+            SliderField(
+                title: "Maximum Tokens", prompt: "256",
+                value: $config.tokens,
+                sliderValue: Binding {
+                    sqrt(Double(config.tokens))
+                } set: {
+                    config.tokens = Int(pow($0, 2))
+                },
+                format: .number,
+                range: 1...sqrt(Double(4096))
+//                range: 1...sqrt(Double(config.hparams.n_embd))
+            )
 
             SliderField(
                 title: "Temperature", prompt: "0.7",
@@ -103,24 +86,10 @@ struct ConfigView: View {
                 range: 0...1
             )
 
-            if config.mode != .edit {
-                SliderField(
-                    title: "Presence Penalty", prompt: "0",
-                    value: $config.presencePenalty,
-                    range: -2...2
-                )
-                
-                SliderField(
-                    title: "Frequency Penalty", prompt: "0",
-                    value: $config.frequencyPenalty,
-                    range: -2...2
-                )
-                
-                Section {
-                    Picker("Model", selection: $config.model) {
-                        ForEach(Configuration.Model.allCases, id: \.self) { model in
-                            Text("\(model.rawValue)").tag(model)
-                        }
+            Section {
+                Picker("Model", selection: $config.model) {
+                    ForEach(Configuration.Model.allCases, id: \.self) { model in
+                        Text("\(model.rawValue)").tag(model)
                     }
                 }
             }
@@ -135,7 +104,6 @@ struct ConfigView: View {
             #endif
         }
         .monospacedDigit()
-        .animation(.default, value: config.mode)
 #if os(iOS)
         .keyboardType(.numberPad)
         .navigationBarTitleDisplayMode(.inline)

@@ -14,7 +14,7 @@ extension Defaults.Keys {
 
 struct ContentView: View {
     @Default(.config) var config
-    @StateObject var completer = OpenAIAPI()
+    @StateObject var completer = LLaMAInvoker()
     @Environment(\.openURL) var openURL
     
     @FocusState var focusedEditField: EditField?
@@ -25,8 +25,8 @@ struct ContentView: View {
 
     @State private var modal: Sheet?
     private enum Sheet: Identifiable, Hashable {
-        case response(OpenAIAPI.Status.Response)
-        case error(OpenAIAPI.Status.WrappedError)
+        case response(LLaMAInvoker.Status.Response)
+        case error(LLaMAInvoker.Status.WrappedError)
         #if os(iOS)
         case config
         #endif
@@ -35,31 +35,21 @@ struct ContentView: View {
     }
 
     func run() {
-        completer.perform(config, openURL: openURL)
+        completer.complete(config, openURL: openURL)
     }
 
     @ViewBuilder
     var completeButton: some View {
         switch completer.status {
-        case .fetching:
+        case .working:
             ProgressView()
                 #if os(macOS)
                 .controlSize(.small)
                 .padding(.trailing, 3)
                 #endif
         default:
-            if config.mode == .insert, !config.prompt.contains(String.insertToken) {
-                HStack {
-                    Text("Missing \(Text("[insert]").font(.body.monospaced())) token")
-                        .foregroundColor(.secondary)
-                    Button(action: run) { Label("Run", systemImage: "play.fill") }
-                        .keyboardShortcut("R")
-                        .disabled(true)
-                }
-            } else {
-                Button(action: run) { Label("Run", systemImage: "play.fill") }
-                    .keyboardShortcut("R")
-            }
+            Button(action: run) { Label("Run", systemImage: "play.fill") }
+                .keyboardShortcut("R")
         }
     }
     var body: some View {
@@ -111,26 +101,10 @@ struct ContentView: View {
         }
 #else
         let content = HStack(spacing: 0) {
-            Group {
-                switch config.mode {
-                case .complete, .insert:
-                    TextEditor(text: $config.prompt)
-                        .padding(8)
-                case .edit:
-                    VSplitView {
-                        VStack(alignment: .leading) {
-                            TextEditorLabel(title: "Input")
-                            TextEditor(text: $config.prompt)
-                        }.padding(8)
-                        VStack(alignment: .leading) {
-                            TextEditorLabel(title: "Instruction")
-                            TextEditor(text: $config.instruction)
-                        }.padding(8)
-                    }
-                }
-            }
-            .frame(minWidth: 300)
-            .background(Color(nsColor: .textBackgroundColor))
+            TextEditor(text: $config.prompt)
+                .padding(8)
+                .frame(minWidth: 300)
+                .background(Color(nsColor: .textBackgroundColor))
             Divider()
             ScrollView {
                 VStack {
@@ -148,7 +122,7 @@ struct ContentView: View {
         content
             .onChange(of: completer.status) { status in
                 switch status {
-                case .idle, .fetching:
+                case .idle, .working:
                     modal = nil
                 case .done(let response):
                     modal = .response(response)
@@ -177,9 +151,6 @@ struct ContentView: View {
                         ScrollView(.vertical) {
                             VStack(alignment: .leading, spacing: 10) {
                                 Text(error.error.localizedDescription)
-                                if let error = error.error as? OpenAIError {
-                                    Text("Error Code: ") + Text(error.type).font(.body.monospaced())
-                                }
                             }
                             .padding()
                         }

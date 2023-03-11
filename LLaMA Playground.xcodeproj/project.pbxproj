@@ -11,25 +11,25 @@
 		8539E90A28DD32970065F160 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8539E90928DD32970065F160 /* ContentView.swift */; };
 		8539E90C28DD32990065F160 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 8539E90B28DD32990065F160 /* Assets.xcassets */; };
 		8539E91028DD32990065F160 /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 8539E90F28DD32990065F160 /* Preview Assets.xcassets */; };
-		8539E91728DD34050065F160 /* ModelConfig.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8539E91628DD34050065F160 /* ModelConfig.swift */; };
 		8539E91B28DD3DA10065F160 /* ConfigView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8539E91A28DD3DA10065F160 /* ConfigView.swift */; };
-		8539E91D28DD50A00065F160 /* OpenAIAPI.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8539E91C28DD50A00065F160 /* OpenAIAPI.swift */; };
+		8566E6E029BCBA1900491F32 /* LLaMAConfig.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8566E6DE29BCB8F100491F32 /* LLaMAConfig.swift */; };
+		8566E6E229BCBA9300491F32 /* LLaMACPP.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8566E6E129BCBA9300491F32 /* LLaMACPP.swift */; };
 		857AF7DF29744F1900BC67B3 /* DurationFormatStyle.swift in Sources */ = {isa = PBXBuildFile; fileRef = 857AF7DE29744F1800BC67B3 /* DurationFormatStyle.swift */; };
 		859F3A82296C8ACA00E3F122 /* Defaults in Frameworks */ = {isa = PBXBuildFile; productRef = 859F3A81296C8ACA00E3F122 /* Defaults */; };
 		85E40C16292195F000E6258E /* ResponseView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 85E40C15292195F000E6258E /* ResponseView.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
-		8539E90428DD32970065F160 /* GPT-3 Playground.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "GPT-3 Playground.app"; sourceTree = BUILT_PRODUCTS_DIR; };
+		8539E90428DD32970065F160 /* LLaMA Playground.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "LLaMA Playground.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		8539E90728DD32970065F160 /* GPT_3_PlaygroundApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GPT_3_PlaygroundApp.swift; sourceTree = "<group>"; };
 		8539E90928DD32970065F160 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
 		8539E90B28DD32990065F160 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		8539E90D28DD32990065F160 /* GPT_3_Playground.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = GPT_3_Playground.entitlements; sourceTree = "<group>"; };
 		8539E90F28DD32990065F160 /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
-		8539E91628DD34050065F160 /* ModelConfig.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ModelConfig.swift; sourceTree = "<group>"; };
 		8539E91A28DD3DA10065F160 /* ConfigView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConfigView.swift; sourceTree = "<group>"; };
-		8539E91C28DD50A00065F160 /* OpenAIAPI.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OpenAIAPI.swift; sourceTree = "<group>"; };
 		8539E91E28DD5E610065F160 /* GPT-3-Playground-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = "GPT-3-Playground-Info.plist"; sourceTree = SOURCE_ROOT; };
+		8566E6DE29BCB8F100491F32 /* LLaMAConfig.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LLaMAConfig.swift; sourceTree = "<group>"; };
+		8566E6E129BCBA9300491F32 /* LLaMACPP.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LLaMACPP.swift; sourceTree = "<group>"; };
 		857AF7DE29744F1800BC67B3 /* DurationFormatStyle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DurationFormatStyle.swift; sourceTree = "<group>"; };
 		85E40C15292195F000E6258E /* ResponseView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ResponseView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -57,7 +57,7 @@
 		8539E90528DD32970065F160 /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				8539E90428DD32970065F160 /* GPT-3 Playground.app */,
+				8539E90428DD32970065F160 /* LLaMA Playground.app */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -68,11 +68,11 @@
 				8539E91E28DD5E610065F160 /* GPT-3-Playground-Info.plist */,
 				8539E90728DD32970065F160 /* GPT_3_PlaygroundApp.swift */,
 				8539E90928DD32970065F160 /* ContentView.swift */,
+				8566E6E129BCBA9300491F32 /* LLaMACPP.swift */,
 				85E40C15292195F000E6258E /* ResponseView.swift */,
 				857AF7DE29744F1800BC67B3 /* DurationFormatStyle.swift */,
 				8539E91A28DD3DA10065F160 /* ConfigView.swift */,
-				8539E91C28DD50A00065F160 /* OpenAIAPI.swift */,
-				8539E91628DD34050065F160 /* ModelConfig.swift */,
+				8566E6DE29BCB8F100491F32 /* LLaMAConfig.swift */,
 				8539E90B28DD32990065F160 /* Assets.xcassets */,
 				8539E90D28DD32990065F160 /* GPT_3_Playground.entitlements */,
 				8539E90E28DD32990065F160 /* Preview Content */,
@@ -91,9 +91,9 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
-		8539E90328DD32970065F160 /* GPT-3 Playground */ = {
+		8539E90328DD32970065F160 /* LLaMA Playground */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 8539E91328DD32990065F160 /* Build configuration list for PBXNativeTarget "GPT-3 Playground" */;
+			buildConfigurationList = 8539E91328DD32990065F160 /* Build configuration list for PBXNativeTarget "LLaMA Playground" */;
 			buildPhases = (
 				8539E90028DD32970065F160 /* Sources */,
 				8539E90128DD32970065F160 /* Frameworks */,
@@ -103,12 +103,12 @@
 			);
 			dependencies = (
 			);
-			name = "GPT-3 Playground";
+			name = "LLaMA Playground";
 			packageProductDependencies = (
 				859F3A81296C8ACA00E3F122 /* Defaults */,
 			);
 			productName = "GPT-3 Playground";
-			productReference = 8539E90428DD32970065F160 /* GPT-3 Playground.app */;
+			productReference = 8539E90428DD32970065F160 /* LLaMA Playground.app */;
 			productType = "com.apple.product-type.application";
 		};
 /* End PBXNativeTarget section */
@@ -126,7 +126,7 @@
 					};
 				};
 			};
-			buildConfigurationList = 8539E8FF28DD32970065F160 /* Build configuration list for PBXProject "GPT-3 Playground" */;
+			buildConfigurationList = 8539E8FF28DD32970065F160 /* Build configuration list for PBXProject "LLaMA Playground" */;
 			compatibilityVersion = "Xcode 14.0";
 			developmentRegion = en;
 			hasScannedForEncodings = 0;
@@ -142,7 +142,7 @@
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
-				8539E90328DD32970065F160 /* GPT-3 Playground */,
+				8539E90328DD32970065F160 /* LLaMA Playground */,
 			);
 		};
 /* End PBXProject section */
@@ -164,13 +164,13 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				8539E91D28DD50A00065F160 /* OpenAIAPI.swift in Sources */,
 				8539E91B28DD3DA10065F160 /* ConfigView.swift in Sources */,
 				857AF7DF29744F1900BC67B3 /* DurationFormatStyle.swift in Sources */,
 				8539E90A28DD32970065F160 /* ContentView.swift in Sources */,
-				8539E91728DD34050065F160 /* ModelConfig.swift in Sources */,
 				8539E90828DD32970065F160 /* GPT_3_PlaygroundApp.swift in Sources */,
 				85E40C16292195F000E6258E /* ResponseView.swift in Sources */,
+				8566E6E229BCBA9300491F32 /* LLaMACPP.swift in Sources */,
+				8566E6E029BCBA1900491F32 /* LLaMAConfig.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -320,7 +320,7 @@
 				"LD_RUNPATH_SEARCH_PATHS[sdk=macosx*]" = "@executable_path/../Frameworks";
 				MACOSX_DEPLOYMENT_TARGET = 13.1;
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = "com.jedfox.GPT-3-Playground";
+				PRODUCT_BUNDLE_IDENTIFIER = "com.jedfox.LLaMA-Playground";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = auto;
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator macosx";
@@ -362,7 +362,7 @@
 				"LD_RUNPATH_SEARCH_PATHS[sdk=macosx*]" = "@executable_path/../Frameworks";
 				MACOSX_DEPLOYMENT_TARGET = 13.1;
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = "com.jedfox.GPT-3-Playground";
+				PRODUCT_BUNDLE_IDENTIFIER = "com.jedfox.LLaMA-Playground";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = auto;
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator macosx";
@@ -375,7 +375,7 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		8539E8FF28DD32970065F160 /* Build configuration list for PBXProject "GPT-3 Playground" */ = {
+		8539E8FF28DD32970065F160 /* Build configuration list for PBXProject "LLaMA Playground" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				8539E91128DD32990065F160 /* Debug */,
@@ -384,7 +384,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		8539E91328DD32990065F160 /* Build configuration list for PBXNativeTarget "GPT-3 Playground" */ = {
+		8539E91328DD32990065F160 /* Build configuration list for PBXNativeTarget "LLaMA Playground" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				8539E91428DD32990065F160 /* Debug */,
