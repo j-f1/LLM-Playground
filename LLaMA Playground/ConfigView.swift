@@ -55,6 +55,31 @@ extension SliderField where Value == Double, SliderValue == Value, Format == Flo
     }
 }
 
+private struct IntField<Value: BinaryInteger, Format: ParseableFormatStyle>: View
+where Format.FormatInput == Value, Format.FormatOutput == String {
+    let title: LocalizedStringKey
+    let prompt: LocalizedStringKey
+    @Binding var value: Value
+    let format: Format
+    let range: ClosedRange<Value>
+
+    var body: some View {
+        Section {
+#if os(iOS)
+            LabeledContent(title) {
+                TextField(prompt, value: $value, format: format)
+                    .multilineTextAlignment(.trailing)
+                    .keyboardType(.decimalPad)
+            }
+#else
+            TextField(title, value: $value, format: format, prompt: Text(prompt))
+                .multilineTextAlignment(.trailing)
+#endif
+        }
+    }
+}
+
+
 struct ConfigView: View {
     @Binding var config: Configuration
     let hParams: llama_hparams
@@ -78,6 +103,13 @@ struct ConfigView: View {
                 title: "Temperature", prompt: "0.7",
                 value: $config.temperature,
                 range: 0...2
+            )
+
+            IntField(
+                title: "Top K", prompt: "40",
+                value: $config.topK,
+                format: .number,
+                range: 0...100
             )
 
             SliderField(
