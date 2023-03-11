@@ -105,7 +105,7 @@ struct ConfigView: View {
             }
         }
 #endif
-        .navigationTitle("Configuration")
+        .navigationTitle("LLaMA Playground")
         .formStyle(.grouped)
     }
 }
