@@ -21,6 +21,8 @@ struct Configuration: Codable, Defaults.Serializable {
 
     enum Model: String, Codable, CaseIterable {
         case seven
+        case thirteen
         case thirty
+        case sixtyFive
     }
 }
