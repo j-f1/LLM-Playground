@@ -111,7 +111,7 @@ struct ContentView: View {
             Divider()
             ScrollView {
                 VStack {
-                    ConfigView(config: $config)
+                    ConfigView(config: $config, hParams: completer.hParams)
                     Spacer()
                 }
             }

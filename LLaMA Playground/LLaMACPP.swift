@@ -15,6 +15,10 @@ class LLaMAInvoker: ObservableObject {
     private var state = llama_state()
     private var shouldStop = false
 
+    var hParams: llama_hparams {
+        state.model.hparams
+    }
+
     init() {
         DispatchQueue.global().async {
             _ = llama_bootstrap("/Users/jed/Documents/github-clones/llama.cpp/7b-q4_0.bin", &self.state)

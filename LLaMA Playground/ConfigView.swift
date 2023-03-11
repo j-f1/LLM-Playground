@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import LLaMAcpp
 
 private struct SliderField<Value, SliderValue: BinaryFloatingPoint, Format: ParseableFormatStyle>: View
 where Format.FormatInput == Value, Format.FormatOutput == String, SliderValue.Stride: BinaryFloatingPoint {
@@ -56,6 +57,7 @@ extension SliderField where Value == Double, SliderValue == Value, Format == Flo
 
 struct ConfigView: View {
     @Binding var config: Configuration
+    let hParams: llama_hparams
     @Environment(\.dismiss) var dismiss
 
     var body: some View {
@@ -69,8 +71,7 @@ struct ConfigView: View {
                     config.tokens = Int(Darwin.pow($0, 2))
                 },
                 format: .number,
-                range: 1...Darwin.sqrt(Double(4096))
-//                range: 1...sqrt(Double(config.hparams.n_embd))
+                range: 1...sqrt(CGFloat(hParams.n_ctx))
             )
 
             SliderField(
@@ -112,6 +113,6 @@ struct ConfigView: View {
 
 struct ConfigView_Previews: PreviewProvider {
     static var previews: some View {
-        ConfigView(config: .constant(Configuration()))
+        ConfigView(config: .constant(Configuration()), hParams: .init())
     }
 }
