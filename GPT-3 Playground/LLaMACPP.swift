@@ -10,13 +10,16 @@ import SwiftUI
 import LLaMAcpp
 
 class LLaMAInvoker: ObservableObject {
-    @Published var status = Status.idle
+    @Published var status = Status.working
 
     private var state = llama_state()
 
     init() {
         DispatchQueue.global().async {
             _ = llama_bootstrap("/Users/jed/Documents/github-clones/llama.cpp/7b-q4_0.bin", &self.state)
+            Task { @MainActor in
+                self.status = .idle
+            }
         }
     }
 
@@ -62,8 +65,33 @@ class LLaMAInvoker: ObservableObject {
         }
     }
 
-    func callAPI(request configuration: Configuration, openURL: OpenURLAction) async throws {
-        // TODO!
-//        llama_bootstrap()
+    func callAPI(request config: Configuration, openURL: OpenURLAction) async throws {
+        try await withCheckedThrowingContinuation { continuation in
+            DispatchQueue.global(qos: .userInitiated).async {
+                var params = gpt_params(config)
+                if llama_predict(&params, &self.state) {
+                    continuation.resume()
+                } else {
+                    continuation.resume(throwing: LLaMAError())
+                }
+            }
+        }
     }
 }
+
+extension gpt_params {
+    init(_ config: Configuration) {
+        self.init()
+        n_threads = Int32(config.threads)
+        n_predict = Int32(config.tokens)
+        top_k = Int32(config.topK)
+        top_p = Float(config.topP)
+        temp = Float(config.temperature)
+        n_batch = Int32(config.batchSize)
+        config.prompt.withCString { ptr in
+            prompt = llama_str(ptr)
+        }
+    }
+}
+
+struct LLaMAError: Error {}
