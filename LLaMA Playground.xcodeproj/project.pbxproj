@@ -7,7 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		8539E90828DD32970065F160 /* GPT_3_PlaygroundApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8539E90728DD32970065F160 /* GPT_3_PlaygroundApp.swift */; };
+		8539E90828DD32970065F160 /* LLaMA_PlaygroundApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8539E90728DD32970065F160 /* LLaMA_PlaygroundApp.swift */; };
 		8539E90A28DD32970065F160 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8539E90928DD32970065F160 /* ContentView.swift */; };
 		8539E90C28DD32990065F160 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 8539E90B28DD32990065F160 /* Assets.xcassets */; };
 		8539E91028DD32990065F160 /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 8539E90F28DD32990065F160 /* Preview Assets.xcassets */; };
@@ -53,13 +53,13 @@
 
 /* Begin PBXFileReference section */
 		8539E90428DD32970065F160 /* LLaMA Playground.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "LLaMA Playground.app"; sourceTree = BUILT_PRODUCTS_DIR; };
-		8539E90728DD32970065F160 /* GPT_3_PlaygroundApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GPT_3_PlaygroundApp.swift; sourceTree = "<group>"; };
+		8539E90728DD32970065F160 /* LLaMA_PlaygroundApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LLaMA_PlaygroundApp.swift; sourceTree = "<group>"; };
 		8539E90928DD32970065F160 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
 		8539E90B28DD32990065F160 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
-		8539E90D28DD32990065F160 /* GPT_3_Playground.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = GPT_3_Playground.entitlements; sourceTree = "<group>"; };
+		8539E90D28DD32990065F160 /* LLaMA_Playground.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = LLaMA_Playground.entitlements; sourceTree = "<group>"; };
 		8539E90F28DD32990065F160 /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
 		8539E91A28DD3DA10065F160 /* ConfigView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConfigView.swift; sourceTree = "<group>"; };
-		8539E91E28DD5E610065F160 /* GPT-3-Playground-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = "GPT-3-Playground-Info.plist"; sourceTree = SOURCE_ROOT; };
+		8539E91E28DD5E610065F160 /* LLaMA-Playground-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "LLaMA-Playground-Info.plist"; sourceTree = SOURCE_ROOT; };
 		8566E6DE29BCB8F100491F32 /* LLaMAConfig.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LLaMAConfig.swift; sourceTree = "<group>"; };
 		8566E6E129BCBA9300491F32 /* LLaMACPP.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LLaMACPP.swift; sourceTree = "<group>"; };
 		8566E6E529BCBD7000491F32 /* utils.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = utils.h; sourceTree = "<group>"; };
@@ -99,7 +99,7 @@
 		8539E8FB28DD32970065F160 = {
 			isa = PBXGroup;
 			children = (
-				8539E90628DD32970065F160 /* GPT-3 Playground */,
+				8539E90628DD32970065F160 /* LLaMA Playground */,
 				8566E6E429BCBD7000491F32 /* llama */,
 				8539E90528DD32970065F160 /* Products */,
 				8566E71829BCC63E00491F32 /* Frameworks */,
@@ -115,11 +115,11 @@
 			name = Products;
 			sourceTree = "<group>";
 		};
-		8539E90628DD32970065F160 /* GPT-3 Playground */ = {
+		8539E90628DD32970065F160 /* LLaMA Playground */ = {
 			isa = PBXGroup;
 			children = (
-				8539E91E28DD5E610065F160 /* GPT-3-Playground-Info.plist */,
-				8539E90728DD32970065F160 /* GPT_3_PlaygroundApp.swift */,
+				8539E91E28DD5E610065F160 /* LLaMA-Playground-Info.plist */,
+				8539E90728DD32970065F160 /* LLaMA_PlaygroundApp.swift */,
 				8539E90928DD32970065F160 /* ContentView.swift */,
 				85E40C15292195F000E6258E /* ResponseView.swift */,
 				857AF7DE29744F1800BC67B3 /* DurationFormatStyle.swift */,
@@ -127,10 +127,10 @@
 				8566E6E129BCBA9300491F32 /* LLaMACPP.swift */,
 				8566E6DE29BCB8F100491F32 /* LLaMAConfig.swift */,
 				8539E90B28DD32990065F160 /* Assets.xcassets */,
-				8539E90D28DD32990065F160 /* GPT_3_Playground.entitlements */,
+				8539E90D28DD32990065F160 /* LLaMA_Playground.entitlements */,
 				8539E90E28DD32990065F160 /* Preview Content */,
 			);
-			path = "GPT-3 Playground";
+			path = "LLaMA Playground";
 			sourceTree = "<group>";
 		};
 		8539E90E28DD32990065F160 /* Preview Content */ = {
@@ -287,7 +287,7 @@
 				8539E91B28DD3DA10065F160 /* ConfigView.swift in Sources */,
 				857AF7DF29744F1900BC67B3 /* DurationFormatStyle.swift in Sources */,
 				8539E90A28DD32970065F160 /* ContentView.swift in Sources */,
-				8539E90828DD32970065F160 /* GPT_3_PlaygroundApp.swift in Sources */,
+				8539E90828DD32970065F160 /* LLaMA_PlaygroundApp.swift in Sources */,
 				85E40C16292195F000E6258E /* ResponseView.swift in Sources */,
 				8566E6E229BCBA9300491F32 /* LLaMACPP.swift in Sources */,
 				8566E6E029BCBA1900491F32 /* LLaMAConfig.swift in Sources */,
@@ -435,19 +435,19 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
-				CODE_SIGN_ENTITLEMENTS = "GPT-3 Playground/GPT_3_Playground.entitlements";
+				CODE_SIGN_ENTITLEMENTS = "LLaMA Playground/LLaMA_Playground.entitlements";
 				CODE_SIGN_IDENTITY = "-";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "Apple Development";
 				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEAD_CODE_STRIPPING = YES;
-				DEVELOPMENT_ASSET_PATHS = "\"GPT-3 Playground/Preview Content\"";
+				DEVELOPMENT_ASSET_PATHS = "\"LLaMA Playground/Preview Content\"";
 				DEVELOPMENT_TEAM = 288H3WAR3W;
 				ENABLE_HARDENED_RUNTIME = YES;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_FILE = "GPT-3-Playground-Info.plist";
+				INFOPLIST_FILE = "LLaMA-Playground-Info.plist";
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphoneos*]" = YES;
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphonesimulator*]" = YES;
 				"INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents[sdk=iphoneos*]" = YES;
@@ -478,19 +478,19 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
-				CODE_SIGN_ENTITLEMENTS = "GPT-3 Playground/GPT_3_Playground.entitlements";
+				CODE_SIGN_ENTITLEMENTS = "LLaMA Playground/LLaMA_Playground.entitlements";
 				CODE_SIGN_IDENTITY = "-";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "Apple Development";
 				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEAD_CODE_STRIPPING = YES;
-				DEVELOPMENT_ASSET_PATHS = "\"GPT-3 Playground/Preview Content\"";
+				DEVELOPMENT_ASSET_PATHS = "\"LLaMA Playground/Preview Content\"";
 				DEVELOPMENT_TEAM = 288H3WAR3W;
 				ENABLE_HARDENED_RUNTIME = YES;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_FILE = "GPT-3-Playground-Info.plist";
+				INFOPLIST_FILE = "LLaMA-Playground-Info.plist";
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphoneos*]" = YES;
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphonesimulator*]" = YES;
 				"INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents[sdk=iphoneos*]" = YES;

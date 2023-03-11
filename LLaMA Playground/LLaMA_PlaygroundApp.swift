@@ -1,5 +1,5 @@
 //
-//  GPT_3_PlaygroundApp.swift
+//  LLaMA_PlaygroundApp.swift
 //  GPT-3 Playground
 //
 //  Created by Jed Fox on 2022-09-22.
@@ -18,7 +18,7 @@ func navigationStackIfNeeded<T: View>(@ViewBuilder content: () -> T) -> some Vie
 }
 
 @main
-struct GPT_3_PlaygroundApp: App {
+struct LLaMA_PlaygroundApp: App {
     var body: some Scene {
         WindowGroup {
             navigationStackIfNeeded {

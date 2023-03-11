@@ -1,6 +1,6 @@
 //
 //  LLaMAConfig.swift
-//  GPT-3 Playground
+//  LLaMA Playground
 //
 //  Created by Jed Fox on 2023-03-11.
 //
