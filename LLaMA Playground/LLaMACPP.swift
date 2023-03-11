@@ -135,6 +135,7 @@ class LLaMAInvoker: ObservableObject {
 
                 func finish(reason: Status.Response.FinishReason) {
                     Task { @MainActor [output, tokens] in
+                        try await Task.sleep(for: .milliseconds(30))
                         self.status = .done(.init(
                             prompt: config.prompt,
                             result: output,
