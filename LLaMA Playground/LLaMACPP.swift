@@ -156,7 +156,7 @@ class LLaMAInvoker: ObservableObject {
 extension gpt_params {
     init(_ config: Configuration) {
         self.init()
-        n_threads = Int32(config.threads)
+//        n_threads = Int32(config.threads)
         n_predict = Int32(config.tokens)
         top_k = Int32(config.topK)
         top_p = Float(config.topP)
