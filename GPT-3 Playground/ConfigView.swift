@@ -57,7 +57,6 @@ extension SliderField where Value == Double, SliderValue == Value, Format == Flo
 struct ConfigView: View {
     @Binding var config: Configuration
     @Environment(\.dismiss) var dismiss
-    @AppStorage("API Key") var apiKey = ""
 
     var body: some View {
         Form {
@@ -86,22 +85,13 @@ struct ConfigView: View {
                 range: 0...1
             )
 
-            Section {
-                Picker("Model", selection: $config.model) {
-                    ForEach(Configuration.Model.allCases, id: \.self) { model in
-                        Text("\(model.rawValue)").tag(model)
-                    }
-                }
-            }
-
-            #if os(iOS)
-            Section("API Key") {
-                SecureField("abcd1234", text: $apiKey)
-                    .keyboardType(.asciiCapable)
-            }
-            #else
-            SecureField("API Key", text: $apiKey, prompt: Text("abcd1234"))
-            #endif
+//            Section {
+//                Picker("Model", selection: $config.model) {
+//                    ForEach(Configuration.Model.allCases, id: \.self) { model in
+//                        Text("\(model.rawValue)").tag(model)
+//                    }
+//                }
+//            }
         }
         .monospacedDigit()
 #if os(iOS)
