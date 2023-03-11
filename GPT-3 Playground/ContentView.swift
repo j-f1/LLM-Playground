@@ -101,10 +101,15 @@ struct ContentView: View {
         }
 #else
         let content = HStack(spacing: 0) {
-            TextEditor(text: $config.prompt)
-                .padding(8)
-                .frame(minWidth: 300)
-                .background(Color(nsColor: .textBackgroundColor))
+            VStack {
+                TextEditor(text: $config.prompt)
+                    .padding(8)
+                    .frame(minWidth: 300)
+                    .background(Color(nsColor: .textBackgroundColor))
+                if case .progress(let output) = completer.status {
+                    Text(output)
+                }
+            }
             Divider()
             ScrollView {
                 VStack {
@@ -122,7 +127,7 @@ struct ContentView: View {
         content
             .onChange(of: completer.status) { status in
                 switch status {
-                case .idle, .working:
+                case .idle, .working, .progress:
                     modal = nil
                 case .done(let response):
                     modal = .response(response)

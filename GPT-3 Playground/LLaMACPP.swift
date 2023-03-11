@@ -26,6 +26,7 @@ class LLaMAInvoker: ObservableObject {
     enum Status: Hashable {
         case idle
         case working
+        case progress(String)
         case done(Response)
         case failed(WrappedError)
 
@@ -69,7 +70,21 @@ class LLaMAInvoker: ObservableObject {
         try await withCheckedThrowingContinuation { continuation in
             DispatchQueue.global(qos: .userInitiated).async {
                 var params = gpt_params(config)
-                if llama_predict(&params, &self.state) {
+                var result = ""
+                let ok = llama_predict(&params, &self.state) { progress in
+                    result += String(cString: llama_str(progress.token))
+                    Task { @MainActor [result] in
+                        self.status = .progress(result)
+                    }
+                }
+                if ok {
+                    Task { @MainActor [result] in
+                        self.status = .done(.init(
+                            prompt: config.prompt,
+                            result: String(result.dropFirst(config.prompt.count)),
+                            duration: nil
+                        ))
+                    }
                     continuation.resume()
                 } else {
                     continuation.resume(throwing: LLaMAError())
