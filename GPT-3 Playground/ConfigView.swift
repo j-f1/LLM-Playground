@@ -65,12 +65,12 @@ struct ConfigView: View {
                 title: "Maximum Tokens", prompt: "256",
                 value: $config.tokens,
                 sliderValue: Binding {
-                    sqrt(Double(config.tokens))
+                    Darwin.sqrt(CGFloat(config.tokens))
                 } set: {
-                    config.tokens = Int(pow($0, 2))
+                    config.tokens = Int(Darwin.pow($0, 2))
                 },
                 format: .number,
-                range: 1...sqrt(Double(4096))
+                range: 1...Darwin.sqrt(Double(4096))
 //                range: 1...sqrt(Double(config.hparams.n_embd))
             )
 
