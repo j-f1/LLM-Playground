@@ -100,7 +100,7 @@ struct ConfigView: View {
             )
 
             SliderField(
-                title: "Temperature", prompt: "0.7",
+                title: "Temperature", prompt: "0.8",
                 value: $config.temperature,
                 range: 0...2
             )
@@ -113,7 +113,7 @@ struct ConfigView: View {
             )
 
             SliderField(
-                title: "Top P", prompt: "1",
+                title: "Top P", prompt: "0.9",
                 value: $config.topP,
                 range: 0...1
             )
