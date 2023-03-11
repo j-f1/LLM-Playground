@@ -11,6 +11,7 @@ struct ResponseView: View {
     let response: LLaMAInvoker.Status.Response
     let isDone: Bool
     @Binding var config: Configuration
+    let onStop: () -> Void
 
     @Environment(\.dismiss) private var dismiss
     @AppStorage("Response Font") private var font = FontType.sans
@@ -172,9 +173,14 @@ struct ResponseView: View {
                 Spacer()
                 HStack {
                     promptButton
-                    Button("Dismiss") {
-                        dismiss()
-                    }.keyboardShortcut(.defaultAction)
+                    if isDone {
+                        Button("Dismiss") {
+                            dismiss()
+                        }.keyboardShortcut(.defaultAction)
+                    } else {
+                        Button("Stop", action: onStop)
+                            .keyboardShortcut(.cancelAction)
+                    }
                 }
             }
             .fixedSize(horizontal: true, vertical: false)

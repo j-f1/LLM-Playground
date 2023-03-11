@@ -13,6 +13,7 @@ class LLaMAInvoker: ObservableObject {
     @Published var status = Status.working
 
     private var state = llama_state()
+    private var shouldStop = false
 
     init() {
         DispatchQueue.global().async {
@@ -77,6 +78,10 @@ class LLaMAInvoker: ObservableObject {
         }
     }
 
+    func stop() {
+        shouldStop = true
+    }
+
     func callAPI(request config: Configuration) async throws {
         try await withCheckedThrowingContinuation { continuation in
             DispatchQueue.global(qos: .userInitiated).async {
@@ -91,7 +96,9 @@ class LLaMAInvoker: ObservableObject {
                             duration: nil
                         ))
                     }
+                    return self.shouldStop
                 }
+                self.shouldStop = false
                 if ok {
                     Task { @MainActor [output] in
                         self.status = .done(.init(

@@ -140,13 +140,23 @@ struct ContentView: View {
                 case .response(let response), .progress(let response):
                     if #available(macOS 13.0, *) {
                         NavigationStack {
-                            ResponseView(response: response, isDone: completer.status.isDone, config: $config)
+                            ResponseView(
+                                response: response,
+                                isDone: completer.status.isDone,
+                                config: $config,
+                                onStop: completer.stop
+                            )
                                 .onDisappear {
                                     completer.status = .idle
                                 }
                         }
                     } else {
-                        ResponseView(response: response, isDone: completer.status.isDone, config: $config)
+                        ResponseView(
+                            response: response,
+                            isDone: completer.status.isDone,
+                            config: $config,
+                            onStop: completer.stop
+                        )
                             .onDisappear {
                                 completer.status = .idle
                             }
