@@ -44,9 +44,9 @@ struct ContentView: View {
         switch completer.status {
         case .starting(let progress):
             ProgressView(value: progress)
-                .progressViewStyle(.circular)
                 .help("\(progress, format: .percent)")
                 #if os(macOS)
+                .progressViewStyle(.circular)
                 .controlSize(.small)
                 .padding(.trailing, 6)
                 #endif
@@ -63,51 +63,17 @@ struct ContentView: View {
     }
     var body: some View {
 #if os(iOS)
-        let content = Group {
-            switch config.mode {
-            case .complete, .insert:
-                TextEditor(text: $config.prompt)
-            case .edit:
-                TabView(selection: $selectedTab) {
-                    TextEditor(text: $config.prompt)
-                        .focused($focusedEditField, equals: .input)
-                        .safeAreaInset(edge: .bottom) {
-                            Text("Input").font(.headline)
-                                .padding(.bottom, -2)
-                        }
-                        .tag(EditField.input)
-                    TextEditor(text: $config.instruction)
-                        .focused($focusedEditField, equals: .instruction)
-                        .safeAreaInset(edge: .bottom) {
-                            Text("Instruction").font(.headline)
-                                .padding(.bottom, -2)
-                        }
-                        .tag(EditField.instruction)
-                }
-                .onChange(of: selectedTab) {
-                    if focusedEditField != nil {
-                        focusedEditField = $0
+        let content = TextEditor(text: $config.prompt)
+            .toolbar {
+                ToolbarItem(placement: .navigation) {
+                    Button(action: { modal = .config }) {
+                        Label("Configuration", systemImage: "gearshape")
                     }
                 }
-                .symbolVariant(.circle.fill)
-                .tabViewStyle(.page)
-                .padding(.bottom, 5)
-                .onAppear {
-                    UIPageControl.appearance().currentPageIndicatorTintColor = .label
-                    UIPageControl.appearance().pageIndicatorTintColor = .tertiaryLabel
-
+                ToolbarItem(placement: .primaryAction) {
+                    completeButton
                 }
             }
-        }.toolbar {
-            ToolbarItem(placement: .navigation) {
-                Button(action: { modal = .config }) {
-                    Label("Configuration", systemImage: "gearshape")
-                }
-            }
-            ToolbarItem(placement: .primaryAction) {
-                completeButton
-            }
-        }
 #else
         let content = HStack(spacing: 0) {
             VStack {
@@ -193,7 +159,7 @@ struct ContentView: View {
                 #if os(iOS)
                 case .config:
                     NavigationStack {
-                        ConfigView(config: $config)
+                        ConfigView(config: $config, hParams: completer.hParams)
                     }
                 #endif
                 }
