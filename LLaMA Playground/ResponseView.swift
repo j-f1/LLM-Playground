@@ -89,14 +89,12 @@ struct ResponseView: View {
                 #if os(iOS)
                 .font(.caption)
                 #endif
-            if isDone {
-                if let duration = response.duration {
-                    Text("Duration: \(duration, format: .duration)")
-                        .foregroundStyle(.tertiary)
-                        #if os(iOS)
-                        .font(.caption)
-                        #endif
-                }
+            if let duration = response.duration {
+                Text("Duration: \(duration, format: .number.precision(.fractionLength(2)))s")
+                    .foregroundStyle(.tertiary)
+                    #if os(iOS)
+                    .font(.caption)
+                    #endif
             }
             #if os(macOS)
             Label("\(config.temperature, format: .number.precision(.fractionLength(2)))", systemImage: {

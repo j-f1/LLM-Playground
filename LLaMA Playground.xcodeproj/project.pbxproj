@@ -22,7 +22,6 @@
 		8566E71629BCC07300491F32 /* main.h in Headers */ = {isa = PBXBuildFile; fileRef = 8566E71529BCC07300491F32 /* main.h */; };
 		8566E71929BCC63E00491F32 /* LLaMAcpp.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8566E6FF29BCBE4D00491F32 /* LLaMAcpp.framework */; };
 		8566E71A29BCC63E00491F32 /* LLaMAcpp.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 8566E6FF29BCBE4D00491F32 /* LLaMAcpp.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
-		857AF7DF29744F1900BC67B3 /* DurationFormatStyle.swift in Sources */ = {isa = PBXBuildFile; fileRef = 857AF7DE29744F1800BC67B3 /* DurationFormatStyle.swift */; };
 		859F3A82296C8ACA00E3F122 /* Defaults in Frameworks */ = {isa = PBXBuildFile; productRef = 859F3A81296C8ACA00E3F122 /* Defaults */; };
 		85E40C16292195F000E6258E /* ResponseView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 85E40C15292195F000E6258E /* ResponseView.swift */; };
 /* End PBXBuildFile section */
@@ -72,7 +71,6 @@
 		8566E6FF29BCBE4D00491F32 /* LLaMAcpp.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = LLaMAcpp.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		8566E71529BCC07300491F32 /* main.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = main.h; sourceTree = "<group>"; };
 		8566E71729BCC2A000491F32 /* module.modulemap */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.module-map"; path = module.modulemap; sourceTree = "<group>"; };
-		857AF7DE29744F1800BC67B3 /* DurationFormatStyle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DurationFormatStyle.swift; sourceTree = "<group>"; };
 		85E40C15292195F000E6258E /* ResponseView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ResponseView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -122,7 +120,6 @@
 				8539E90728DD32970065F160 /* LLaMA_PlaygroundApp.swift */,
 				8539E90928DD32970065F160 /* ContentView.swift */,
 				85E40C15292195F000E6258E /* ResponseView.swift */,
-				857AF7DE29744F1800BC67B3 /* DurationFormatStyle.swift */,
 				8539E91A28DD3DA10065F160 /* ConfigView.swift */,
 				8566E6E129BCBA9300491F32 /* LLaMACPP.swift */,
 				8566E6DE29BCB8F100491F32 /* LLaMAConfig.swift */,
@@ -285,7 +282,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				8539E91B28DD3DA10065F160 /* ConfigView.swift in Sources */,
-				857AF7DF29744F1900BC67B3 /* DurationFormatStyle.swift in Sources */,
 				8539E90A28DD32970065F160 /* ContentView.swift in Sources */,
 				8539E90828DD32970065F160 /* LLaMA_PlaygroundApp.swift in Sources */,
 				85E40C16292195F000E6258E /* ResponseView.swift in Sources */,
@@ -531,7 +527,7 @@
 				DYLIB_CURRENT_VERSION = 1;
 				DYLIB_INSTALL_NAME_BASE = "@rpath";
 				ENABLE_MODULE_VERIFIER = YES;
-				GCC_OPTIMIZATION_LEVEL = 3;
+				GCC_OPTIMIZATION_LEVEL = fast;
 				GCC_WARN_64_TO_32_BIT_CONVERSION = NO;
 				GCC_WARN_UNUSED_FUNCTION = NO;
 				GCC_WARN_UNUSED_VARIABLE = NO;
@@ -579,6 +575,7 @@
 				DYLIB_CURRENT_VERSION = 1;
 				DYLIB_INSTALL_NAME_BASE = "@rpath";
 				ENABLE_MODULE_VERIFIER = YES;
+				GCC_OPTIMIZATION_LEVEL = fast;
 				GCC_WARN_64_TO_32_BIT_CONVERSION = NO;
 				GCC_WARN_UNUSED_FUNCTION = NO;
 				GCC_WARN_UNUSED_VARIABLE = NO;

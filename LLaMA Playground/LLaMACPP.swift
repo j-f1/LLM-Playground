@@ -48,7 +48,7 @@ class LLaMAInvoker: ObservableObject {
         struct Response: Hashable {
             let prompt: String
             let result: String
-            let duration: Duration?
+            let duration: TimeInterval?
             let finishReason: FinishReason?
             let tokens: Int
 
@@ -100,6 +100,7 @@ class LLaMAInvoker: ObservableObject {
                 var params = gpt_params(config)
                 var output = ""
                 var tokens = 0
+                let start = Date()
                 let result = llama_predict(&params, &self.state) { progress in
                     output += String(progress.token)
                     tokens += 1
@@ -107,7 +108,7 @@ class LLaMAInvoker: ObservableObject {
                         self.status = .progress(.init(
                             prompt: config.prompt,
                             result: output,
-                            duration: nil,
+                            duration: Date().timeIntervalSince(start),
                             finishReason: nil,
                             tokens: tokens
                         ))
@@ -121,7 +122,7 @@ class LLaMAInvoker: ObservableObject {
                         self.status = .done(.init(
                             prompt: config.prompt,
                             result: output,
-                            duration: nil,
+                            duration: Date().timeIntervalSince(start),
                             finishReason: reason,
                             tokens: tokens
                         ))
