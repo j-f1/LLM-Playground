@@ -21,7 +21,11 @@ class LLaMAInvoker: ObservableObject {
 
     init() {
         DispatchQueue.global().async {
-            _ = llama_bootstrap("/Users/jed/Documents/github-clones/llama.cpp/7b-q4_0.bin", &self.state)
+            _ = llama_bootstrap("/Users/jed/Documents/github-clones/llama.cpp/7b-q4_0.bin", &self.state) { progress in
+                Task { @MainActor in
+                    self.status = .starting(progress)
+                }
+            }
             Task { @MainActor in
                 self.status = .idle
             }
@@ -29,6 +33,7 @@ class LLaMAInvoker: ObservableObject {
     }
 
     enum Status: Hashable {
+        case starting(Float)
         case idle
         case working
         case progress(Response)

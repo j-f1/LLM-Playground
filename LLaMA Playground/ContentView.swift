@@ -42,6 +42,13 @@ struct ContentView: View {
     @ViewBuilder
     var completeButton: some View {
         switch completer.status {
+        case .starting(let progress):
+            ProgressView(value: progress)
+                .progressViewStyle(.circular)
+                #if os(macOS)
+                .controlSize(.small)
+                .padding(.trailing, 6)
+                #endif
         case .working:
             ProgressView()
                 #if os(macOS)
@@ -125,7 +132,7 @@ struct ContentView: View {
         content
             .onChange(of: completer.status) { status in
                 switch status {
-                case .idle, .working:
+                case .idle, .working, .starting:
                     modal = nil
                 case .progress(let response):
                     modal = .progress(response)
