@@ -88,7 +88,7 @@ class LLaMAInvoker: ObservableObject {
                 var params = gpt_params(config)
                 var output = ""
                 let ok = llama_predict(&params, &self.state) { progress in
-                    output += String(cString: llama_str(progress.token))
+                    output += String(progress.token)
                     Task { @MainActor [output] in
                         self.status = .progress(.init(
                             prompt: config.prompt,
@@ -125,9 +125,7 @@ extension gpt_params {
         top_p = Float(config.topP)
         temp = Float(config.temperature)
         n_batch = Int32(config.batchSize)
-        config.prompt.withCString { ptr in
-            prompt = llama_str(ptr)
-        }
+        prompt = std.string(config.prompt)
     }
 }
 
