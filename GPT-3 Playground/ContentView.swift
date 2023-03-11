@@ -26,6 +26,7 @@ struct ContentView: View {
     @State private var modal: Sheet?
     private enum Sheet: Identifiable, Hashable {
         case response(LLaMAInvoker.Status.Response)
+        case progress(LLaMAInvoker.Status.Response)
         case error(LLaMAInvoker.Status.WrappedError)
         #if os(iOS)
         case config
@@ -106,9 +107,6 @@ struct ContentView: View {
                     .padding(8)
                     .frame(minWidth: 300)
                     .background(Color(nsColor: .textBackgroundColor))
-                if case .progress(let output) = completer.status {
-                    Text(output)
-                }
             }
             Divider()
             ScrollView {
@@ -127,8 +125,10 @@ struct ContentView: View {
         content
             .onChange(of: completer.status) { status in
                 switch status {
-                case .idle, .working, .progress:
+                case .idle, .working:
                     modal = nil
+                case .progress(let response):
+                    modal = .progress(response)
                 case .done(let response):
                     modal = .response(response)
                 case .failed(let error):
@@ -137,16 +137,16 @@ struct ContentView: View {
             }
             .sheet(item: $modal) {
                 switch $0 {
-                case .response(let response):
+                case .response(let response), .progress(let response):
                     if #available(macOS 13.0, *) {
                         NavigationStack {
-                            ResponseView(response: response, config: $config)
+                            ResponseView(response: response, isDone: completer.status.isDone, config: $config)
                                 .onDisappear {
                                     completer.status = .idle
                                 }
                         }
                     } else {
-                        ResponseView(response: response, config: $config)
+                        ResponseView(response: response, isDone: completer.status.isDone, config: $config)
                             .onDisappear {
                                 completer.status = .idle
                             }

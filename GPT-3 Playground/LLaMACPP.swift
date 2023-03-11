@@ -26,9 +26,19 @@ class LLaMAInvoker: ObservableObject {
     enum Status: Hashable {
         case idle
         case working
-        case progress(String)
+        case progress(Response)
         case done(Response)
         case failed(WrappedError)
+
+        var isDone: Bool {
+            if case .done = self {
+                return true
+            }
+            if case .failed = self {
+                return true
+            }
+            return false
+        }
 
         struct Response: Hashable {
             let prompt: String
@@ -58,7 +68,8 @@ class LLaMAInvoker: ObservableObject {
         status = .working
         Task {
             do {
-                try await callAPI(request: request, openURL: openURL)
+                try await callAPI(request: request)
+                // todo: ???
             } catch {
                 print(error)
                 status = .failed(Status.WrappedError(error))
@@ -66,22 +77,26 @@ class LLaMAInvoker: ObservableObject {
         }
     }
 
-    func callAPI(request config: Configuration, openURL: OpenURLAction) async throws {
+    func callAPI(request config: Configuration) async throws {
         try await withCheckedThrowingContinuation { continuation in
             DispatchQueue.global(qos: .userInitiated).async {
                 var params = gpt_params(config)
-                var result = ""
+                var output = ""
                 let ok = llama_predict(&params, &self.state) { progress in
-                    result += String(cString: llama_str(progress.token))
-                    Task { @MainActor [result] in
-                        self.status = .progress(result)
+                    output += String(cString: llama_str(progress.token))
+                    Task { @MainActor [output] in
+                        self.status = .progress(.init(
+                            prompt: config.prompt,
+                            result: output,
+                            duration: nil
+                        ))
                     }
                 }
                 if ok {
-                    Task { @MainActor [result] in
+                    Task { @MainActor [output] in
                         self.status = .done(.init(
                             prompt: config.prompt,
-                            result: String(result.dropFirst(config.prompt.count)),
+                            result: output,
                             duration: nil
                         ))
                     }

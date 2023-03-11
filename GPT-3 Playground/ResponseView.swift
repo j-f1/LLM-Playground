@@ -9,6 +9,7 @@ import SwiftUI
 
 struct ResponseView: View {
     let response: LLaMAInvoker.Status.Response
+    let isDone: Bool
     @Binding var config: Configuration
 
     @Environment(\.dismiss) private var dismiss
@@ -52,21 +53,19 @@ struct ResponseView: View {
     }
 
     var body: some View {
-        let combinedText = config.prompt + response.result
-
         let copyButton = Button(action: {
             #if os(iOS)
-            UIPasteboard.general.string = combinedText
+            UIPasteboard.general.string = response.result
             #else
             NSPasteboard.general.clearContents()
-            NSPasteboard.general.setString(combinedText, forType: .string)
+            NSPasteboard.general.setString(response.result, forType: .string)
             #endif
         }) {
             Label("Copy", systemImage: "doc.on.doc")
         }
 
         let promptButton = Button(action: {
-            config.prompt = combinedText
+            config.prompt = response.result
             dismiss()
         }) {
             Label("Set as Prompt", systemImage: "text.insert")
@@ -79,17 +78,19 @@ struct ResponseView: View {
         }
 
         let costLabel = Group {
-            Text("Completion tokens: \(config.tokens)")
-                .foregroundColor(.secondary)
-                #if os(iOS)
-                .font(.caption)
-                #endif
-            if let duration = response.duration {
-                Text("Duration: \(duration, format: .duration)")
-                    .foregroundStyle(.tertiary)
+            if isDone {
+                Text("Completion tokens: \(config.tokens)")
+                    .foregroundColor(.secondary)
                     #if os(iOS)
                     .font(.caption)
                     #endif
+                if let duration = response.duration {
+                    Text("Duration: \(duration, format: .duration)")
+                        .foregroundStyle(.tertiary)
+                        #if os(iOS)
+                        .font(.caption)
+                        #endif
+                }
             }
             #if os(macOS)
             Label("\(config.temperature, format: .number.precision(.fractionLength(2)))", systemImage: {
@@ -107,7 +108,7 @@ struct ResponseView: View {
             #endif
         }
 
-        let resultText = (Text(config.prompt).bold() + Text(response.result)).font(font.font)
+        let resultText = (Text(config.prompt.prefix(response.result.count)).bold() + Text(response.result.dropFirst(config.prompt.count))).font(font.font)
 
         #if os(iOS)
         GeometryReader { geom in
