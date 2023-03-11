@@ -84,12 +84,12 @@ struct ResponseView: View {
         }
 
         let costLabel = Group {
+            Text("Completion tokens: \(response.tokens)")
+                .foregroundColor(.secondary)
+                #if os(iOS)
+                .font(.caption)
+                #endif
             if isDone {
-                Text("Completion tokens: \(config.tokens)")
-                    .foregroundColor(.secondary)
-                    #if os(iOS)
-                    .font(.caption)
-                    #endif
                 if let duration = response.duration {
                     Text("Duration: \(duration, format: .duration)")
                         .foregroundStyle(.tertiary)

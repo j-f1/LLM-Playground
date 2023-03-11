@@ -50,6 +50,7 @@ class LLaMAInvoker: ObservableObject {
             let result: String
             let duration: Duration?
             let finishReason: FinishReason?
+            let tokens: Int
 
             enum FinishReason: Hashable {
                 case endOfText
@@ -98,14 +99,17 @@ class LLaMAInvoker: ObservableObject {
             DispatchQueue.global(qos: .userInitiated).async {
                 var params = gpt_params(config)
                 var output = ""
+                var tokens = 0
                 let result = llama_predict(&params, &self.state) { progress in
                     output += String(progress.token)
-                    Task { @MainActor [output] in
+                    tokens += 1
+                    Task { @MainActor [output, tokens] in
                         self.status = .progress(.init(
                             prompt: config.prompt,
                             result: output,
                             duration: nil,
-                            finishReason: nil
+                            finishReason: nil,
+                            tokens: tokens
                         ))
                     }
                     return self.shouldStop
@@ -113,12 +117,13 @@ class LLaMAInvoker: ObservableObject {
                 self.shouldStop = false
 
                 func finish(reason: Status.Response.FinishReason) {
-                    Task { @MainActor [output] in
+                    Task { @MainActor [output, tokens] in
                         self.status = .done(.init(
                             prompt: config.prompt,
                             result: output,
                             duration: nil,
-                            finishReason: reason
+                            finishReason: reason,
+                            tokens: tokens
                         ))
                     }
                     continuation.resume()
