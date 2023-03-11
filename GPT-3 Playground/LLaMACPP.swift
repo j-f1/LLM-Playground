@@ -7,10 +7,18 @@
 
 import Foundation
 import SwiftUI
+import LLaMAcpp
 
-@MainActor
 class LLaMAInvoker: ObservableObject {
     @Published var status = Status.idle
+
+    private var state = llama_state()
+
+    init() {
+        DispatchQueue.global().async {
+            _ = llama_bootstrap("/Users/jed/Documents/github-clones/llama.cpp/7b-q4_0.bin", &self.state)
+        }
+    }
 
     enum Status: Hashable {
         case idle
@@ -56,5 +64,6 @@ class LLaMAInvoker: ObservableObject {
 
     func callAPI(request configuration: Configuration, openURL: OpenURLAction) async throws {
         // TODO!
+//        llama_bootstrap()
     }
 }
