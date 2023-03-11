@@ -25,8 +25,8 @@ struct ContentView: View {
 
     @State private var modal: Sheet?
     private enum Sheet: Identifiable, Hashable {
-        case response(LLaMAInvoker.Status.Response)
-        case progress(LLaMAInvoker.Status.Response)
+        case response
+        case progress
         case error(LLaMAInvoker.Status.WrappedError)
         #if os(iOS)
         case config
@@ -135,22 +135,19 @@ struct ContentView: View {
                 switch status {
                 case .idle, .working, .starting:
                     modal = nil
-                case .progress(let response):
-                    modal = .progress(response)
-                case .done(let response):
-                    modal = .response(response)
+                case .progress, .done:
+                    modal = .response
                 case .failed(let error):
                     modal = .error(error)
                 }
             }
             .sheet(item: $modal) {
                 switch $0 {
-                case .response(let response), .progress(let response):
+                case .response, .progress:
                     if #available(macOS 13.0, *) {
                         NavigationStack {
                             ResponseView(
-                                response: response,
-                                isDone: completer.status.isDone,
+                                response: completer.status.response!,
                                 config: $config,
                                 onStop: completer.stop
                             )
@@ -160,8 +157,7 @@ struct ContentView: View {
                         }
                     } else {
                         ResponseView(
-                            response: response,
-                            isDone: completer.status.isDone,
+                            response: completer.status.response!,
                             config: $config,
                             onStop: completer.stop
                         )

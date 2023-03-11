@@ -9,7 +9,6 @@ import SwiftUI
 
 struct ResponseView: View {
     let response: LLaMAInvoker.Status.Response
-    let isDone: Bool
     @Binding var config: Configuration
     let onStop: () -> Void
 
@@ -208,7 +207,7 @@ struct ResponseView: View {
                 Spacer()
                 HStack {
                     promptButton
-                    if isDone {
+                    if response.finishReason != nil {
                         Button("Dismiss") {
                             dismiss()
                         }.keyboardShortcut(.defaultAction)

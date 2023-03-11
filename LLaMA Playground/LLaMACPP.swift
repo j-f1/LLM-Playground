@@ -41,6 +41,16 @@ class LLaMAInvoker: ObservableObject {
         case done(Response)
         case failed(WrappedError)
 
+        var response: Response? {
+            if case .progress(let response) = self {
+                return response
+            }
+            if case .done(let response) = self {
+                return response
+            }
+            return nil
+        }
+
         var isDone: Bool {
             if case .done = self {
                 return true
