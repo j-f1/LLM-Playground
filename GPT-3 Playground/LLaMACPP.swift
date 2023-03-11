@@ -45,6 +45,13 @@ class LLaMAInvoker: ObservableObject {
             let prompt: String
             let result: String
             let duration: Duration?
+            let finishReason: FinishReason?
+
+            enum FinishReason: Hashable {
+                case endOfText
+                case cancelled
+                case limit
+            }
         }
 
         final class WrappedError: Hashable {
@@ -83,33 +90,48 @@ class LLaMAInvoker: ObservableObject {
     }
 
     func callAPI(request config: Configuration) async throws {
-        try await withCheckedThrowingContinuation { continuation in
+        let _: Void = try await withCheckedThrowingContinuation { continuation in
             DispatchQueue.global(qos: .userInitiated).async {
                 var params = gpt_params(config)
                 var output = ""
-                let ok = llama_predict(&params, &self.state) { progress in
+                let result = llama_predict(&params, &self.state) { progress in
                     output += String(progress.token)
                     Task { @MainActor [output] in
                         self.status = .progress(.init(
                             prompt: config.prompt,
                             result: output,
-                            duration: nil
+                            duration: nil,
+                            finishReason: nil
                         ))
                     }
                     return self.shouldStop
                 }
                 self.shouldStop = false
-                if ok {
+
+                func finish(reason: Status.Response.FinishReason) {
                     Task { @MainActor [output] in
                         self.status = .done(.init(
                             prompt: config.prompt,
                             result: output,
-                            duration: nil
+                            duration: nil,
+                            finishReason: reason
                         ))
                     }
                     continuation.resume()
-                } else {
+                }
+
+                switch result {
+                case .error:
                     continuation.resume(throwing: LLaMAError())
+                case .cancel:
+                    finish(reason: .cancelled)
+                case .limit:
+                    finish(reason: .limit)
+                case .end_of_text:
+                    finish(reason: .endOfText)
+                @unknown default:
+                    assertionFailure("Unexpected llama_predict result \(result.rawValue)")
+                    continuation.resume()
                 }
             }
         }

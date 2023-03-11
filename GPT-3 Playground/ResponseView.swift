@@ -17,17 +17,22 @@ struct ResponseView: View {
     @AppStorage("Response Font") private var font = FontType.sans
 
     @Environment(\.displayScale) private var displayScale
-    @StateObject private var annotation = ImageRenderer(content: AnnotationBadge())
+    @StateObject private var annotation = ImageRenderer(content: AnnotationBadge(cancelled: false))
     private struct AnnotationBadge: View {
+        let cancelled: Bool
         var body: some View {
-            Label("Exceeded Token Limit", systemImage: "exclamationmark.triangle")
+            (cancelled ? (
+                Label("Cancelled", systemImage: "stop.circle")
+            ) : (
+                Label("Exceeded Token Limit", systemImage: "exclamationmark.triangle")
+            ))
                 .bold()
                 .symbolVariant(.fill)
                 .foregroundColor(.white)
                 .font(.caption2)
                 .padding(.horizontal, 3)
                 .padding(.vertical, 1)
-                .background(.yellow, in: RoundedRectangle(cornerRadius: 3))
+                .background(cancelled ? .gray : .yellow, in: RoundedRectangle(cornerRadius: 3))
         }
     }
 
@@ -109,7 +114,39 @@ struct ResponseView: View {
             #endif
         }
 
-        let resultText = (Text(config.prompt.prefix(response.result.count)).bold() + Text(response.result.dropFirst(config.prompt.count))).font(font.font)
+        let reasonText = { () -> Text in
+            switch response.finishReason {
+            case .endOfText, nil:
+                return Text("")
+            case .limit:
+                #if os(iOS)
+                if let image = annotation.uiImage {
+                    return Text(" \(Image(uiImage: image)) ").baselineOffset(-3)
+                }
+                #else
+                if let image = annotation.nsImage {
+                    return Text(" \(Image(nsImage: image)) ").baselineOffset(-3)
+                }
+                #endif
+                return Text(" \(Image(systemName: "exclamationmark.triangle.fill")) Exceeded Token Limit ")
+                    .foregroundColor(.yellow)
+            case .cancelled:
+                #if os(iOS)
+                if let image = annotation.uiImage {
+                    return Text(" \(Image(uiImage: image)) ").baselineOffset(-3)
+                }
+                #else
+                if let image = annotation.nsImage {
+                    return Text(" \(Image(nsImage: image)) ").baselineOffset(-3)
+                }
+                #endif
+                return Text(" \(Image(systemName: "stop.circle")) Cancelled ")
+                    .foregroundColor(.gray)
+            }
+        }()
+
+        let resultText = (Text(config.prompt.prefix(response.result.count)).bold() + Text(response.result.dropFirst(config.prompt.count))).font(font.font) +
+            reasonText
 
         #if os(iOS)
         GeometryReader { geom in
