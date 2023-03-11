@@ -9,7 +9,7 @@ import Foundation
 import Defaults
 
 struct Configuration: Codable, Defaults.Serializable {
-    var seed = -1
+    var seed: Int32 = -1
     var prompt = "Write a tagline for an ice cream shop."
 //    var threads = 4
     var tokens = 128

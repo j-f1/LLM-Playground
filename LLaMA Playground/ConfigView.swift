@@ -64,18 +64,16 @@ where Format.FormatInput == Value, Format.FormatOutput == String {
     let range: ClosedRange<Value>
 
     var body: some View {
-        Section {
 #if os(iOS)
-            LabeledContent(title) {
-                TextField(prompt, value: $value, format: format)
-                    .multilineTextAlignment(.trailing)
-                    .keyboardType(.decimalPad)
-            }
-#else
-            TextField(title, value: $value, format: format, prompt: Text(prompt))
+        LabeledContent(title) {
+            TextField(prompt, value: $value, format: format)
                 .multilineTextAlignment(.trailing)
-#endif
+                .keyboardType(.decimalPad)
         }
+#else
+        TextField(title, value: $value, format: format, prompt: Text(prompt))
+            .multilineTextAlignment(.trailing)
+#endif
     }
 }
 
@@ -99,18 +97,32 @@ struct ConfigView: View {
                 range: 1...sqrt(CGFloat(hParams.n_ctx))
             )
 
+            Section {
+                IntField(
+                    title: "Seed", prompt: "-1 (random)",
+                    value: $config.seed,
+                    format: .number,
+                    range: 0...100
+                )
+                Button("Randomize") {
+                    config.seed = .random(in: 0 ..< .max)
+                }
+            }
+
             SliderField(
                 title: "Temperature", prompt: "0.8",
                 value: $config.temperature,
                 range: 0...2
             )
 
-            IntField(
-                title: "Top K", prompt: "40",
-                value: $config.topK,
-                format: .number,
-                range: 0...100
-            )
+            Section {
+                IntField(
+                    title: "Top K", prompt: "40",
+                    value: $config.topK,
+                    format: .number,
+                    range: 0...100
+                )
+            }
 
             SliderField(
                 title: "Top P", prompt: "0.9",

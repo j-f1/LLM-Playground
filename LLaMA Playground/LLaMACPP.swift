@@ -164,6 +164,7 @@ extension gpt_params {
         temp = Float(config.temperature)
         n_batch = Int32(config.batchSize)
         prompt = std.string(config.prompt)
+        seed = config.seed
     }
 }
 
