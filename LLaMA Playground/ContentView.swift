@@ -45,6 +45,7 @@ struct ContentView: View {
         case .starting(let progress):
             ProgressView(value: progress)
                 .progressViewStyle(.circular)
+                .help("\(progress, format: .percent)")
                 #if os(macOS)
                 .controlSize(.small)
                 .padding(.trailing, 6)
