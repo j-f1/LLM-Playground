@@ -23,6 +23,7 @@
 		8566E71929BCC63E00491F32 /* LLaMAcpp.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8566E6FF29BCBE4D00491F32 /* LLaMAcpp.framework */; };
 		8566E71A29BCC63E00491F32 /* LLaMAcpp.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 8566E6FF29BCBE4D00491F32 /* LLaMAcpp.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		859F3A82296C8ACA00E3F122 /* Defaults in Frameworks */ = {isa = PBXBuildFile; productRef = 859F3A81296C8ACA00E3F122 /* Defaults */; };
+		85ACD10029BE079A00509AFB /* swift-bridge.hh in Headers */ = {isa = PBXBuildFile; fileRef = 85ACD0FE29BE079A00509AFB /* swift-bridge.hh */; };
 		85E40C16292195F000E6258E /* ResponseView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 85E40C15292195F000E6258E /* ResponseView.swift */; };
 /* End PBXBuildFile section */
 
@@ -72,6 +73,7 @@
 		8566E6FF29BCBE4D00491F32 /* LLaMAcpp.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = LLaMAcpp.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		8566E71529BCC07300491F32 /* main.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = main.h; sourceTree = "<group>"; };
 		8566E71729BCC2A000491F32 /* module.modulemap */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.module-map"; path = module.modulemap; sourceTree = "<group>"; };
+		85ACD0FE29BE079A00509AFB /* swift-bridge.hh */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = "swift-bridge.hh"; sourceTree = "<group>"; };
 		85E40C15292195F000E6258E /* ResponseView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ResponseView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -143,15 +145,16 @@
 		8566E6E429BCBD7000491F32 /* llama */ = {
 			isa = PBXGroup;
 			children = (
-				8566E6E529BCBD7000491F32 /* utils.h */,
-				8566E6E629BCBD7000491F32 /* utils.cpp */,
 				8566E6E729BCBD7000491F32 /* convert-pth-to-ggml.py */,
-				8566E71729BCC2A000491F32 /* module.modulemap */,
-				8566E6E829BCBD7000491F32 /* Makefile */,
 				8566E6E929BCBD7000491F32 /* ggml.c */,
+				8566E6F029BCBD7000491F32 /* ggml.h */,
 				8566E6EF29BCBD7000491F32 /* main.cpp */,
 				8566E71529BCC07300491F32 /* main.h */,
-				8566E6F029BCBD7000491F32 /* ggml.h */,
+				8566E6E829BCBD7000491F32 /* Makefile */,
+				8566E71729BCC2A000491F32 /* module.modulemap */,
+				85ACD0FE29BE079A00509AFB /* swift-bridge.hh */,
+				8566E6E629BCBD7000491F32 /* utils.cpp */,
+				8566E6E529BCBD7000491F32 /* utils.h */,
 			);
 			path = llama;
 			sourceTree = "<group>";
@@ -171,6 +174,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				8566E71629BCC07300491F32 /* main.h in Headers */,
+				85ACD10029BE079A00509AFB /* swift-bridge.hh in Headers */,
 				8566E70F29BCBE6300491F32 /* utils.h in Headers */,
 				8566E70E29BCBE6300491F32 /* ggml.h in Headers */,
 			);
@@ -367,7 +371,7 @@
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
 				ONLY_ACTIVE_ARCH = YES;
-				OTHER_SWIFT_FLAGS = "-Xfrontend -cxx-interoperability-mode=swift-5.9";
+				OTHER_SWIFT_FLAGS = "-Xfrontend -enable-experimental-cxx-interop";
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
 				SWIFT_INCLUDE_PATHS = llama;
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
@@ -421,7 +425,7 @@
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
-				OTHER_SWIFT_FLAGS = "-Xfrontend -cxx-interoperability-mode=swift-5.9";
+				OTHER_SWIFT_FLAGS = "-Xfrontend -enable-experimental-cxx-interop";
 				SWIFT_COMPILATION_MODE = wholemodule;
 				SWIFT_INCLUDE_PATHS = llama;
 				SWIFT_OPTIMIZATION_LEVEL = "-O";
