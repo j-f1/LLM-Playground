@@ -193,7 +193,7 @@ struct ResponseView: View {
             .layoutPriority(1)
             Divider()
             VStack {
-                costLabel
+                costLabel.monospacedDigit()
                 Spacer()
                 VStack(alignment: .leading, spacing: 4) {
                     Text("Font").font(.headline)
