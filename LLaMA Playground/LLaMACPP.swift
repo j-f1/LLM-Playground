@@ -176,6 +176,9 @@ extension gpt_params {
         n_batch = Int32(config.batchSize)
         prompt = bridge_string(config.prompt)
         seed = config.seed
+        repeat_last_n = Int32(config.repeatWindow)
+        repeat_penalty = Float(config.repeatPenalty)
+//        n_threads = 8
     }
 }
 

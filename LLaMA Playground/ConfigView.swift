@@ -55,6 +55,17 @@ extension SliderField where Value == Double, SliderValue == Value, Format == Flo
     }
 }
 
+extension SliderField where Value: BinaryInteger, SliderValue == Double, Format == IntegerFormatStyle<Int> {
+    init(title: LocalizedStringKey, prompt: LocalizedStringKey, value: Binding<Value>, format: Format = .number, range: ClosedRange<Value>) {
+        self.title = title
+        self.prompt = prompt
+        self._value = value
+        self._sliderValue = Binding { Double(value.wrappedValue) } set: { value.wrappedValue = Value($0) }
+        self.format = format
+        self.range = Double(range.lowerBound)...Double(range.upperBound)
+    }
+}
+
 private struct IntField<Value: BinaryInteger, Format: ParseableFormatStyle>: View
 where Format.FormatInput == Value, Format.FormatOutput == String {
     let title: LocalizedStringKey
@@ -128,6 +139,24 @@ struct ConfigView: View {
                 title: "Top P", prompt: "0.9",
                 value: $config.topP,
                 range: 0...1
+            )
+
+            SliderField(
+                title: "Repeat Penalty", prompt: "1.3",
+                value: $config.repeatPenalty,
+                sliderValue: Binding {
+                    Darwin.sqrt(CGFloat(config.repeatPenalty))
+                } set: {
+                    config.repeatPenalty = Darwin.pow($0, 2)
+                },
+                format: .number,
+                range: 1...sqrt(CGFloat(10))
+            )
+
+            SliderField(
+                title: "Repeat Window", prompt: "64",
+                value: $config.repeatWindow,
+                range: 0...Int(hParams.n_ctx)
             )
 
 //            Section {

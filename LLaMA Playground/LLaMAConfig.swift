@@ -18,6 +18,8 @@ struct Configuration: Codable, Defaults.Serializable {
     var temperature = 0.8
     var batchSize = 8
     var model = Model.seven
+    var repeatWindow = 64
+    var repeatPenalty = 1.3
 
     enum Model: String, Codable, CaseIterable {
         case seven
