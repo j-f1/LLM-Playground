@@ -115,14 +115,14 @@ struct ConfigView: View {
                 range: 0...2
             )
 
-            Section {
-                IntField(
-                    title: "Top K", prompt: "40",
-                    value: $config.topK,
-                    format: .number,
-                    range: 0...100
-                )
-            }
+//            Section {
+//                IntField(
+//                    title: "Top K", prompt: "40",
+//                    value: $config.topK,
+//                    format: .number,
+//                    range: 0...100
+//                )
+//            }
 
             SliderField(
                 title: "Top P", prompt: "0.9",
