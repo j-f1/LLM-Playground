@@ -67,6 +67,7 @@ class LLaMAInvoker: ObservableObject {
             let duration: TimeInterval?
             let finishReason: FinishReason?
             let tokens: Int
+            let seed: Int
 
             enum FinishReason: Hashable {
                 case endOfText
@@ -120,13 +121,15 @@ class LLaMAInvoker: ObservableObject {
                 let result = llama_predict(&params, &self.state) { progress in
                     output += bridge_string(progress.token)
                     tokens += 1
+                    let params = progress.params.pointee
                     Task { @MainActor [output, tokens] in
                         self.status = .progress(.init(
                             prompt: config.prompt,
                             result: output,
                             duration: Date().timeIntervalSince(start),
                             finishReason: nil,
-                            tokens: tokens
+                            tokens: tokens,
+                            seed: Int(params.seed)
                         ))
                     }
                     return self.shouldStop
@@ -134,14 +137,15 @@ class LLaMAInvoker: ObservableObject {
                 self.shouldStop = false
 
                 func finish(reason: Status.Response.FinishReason) {
-                    Task { @MainActor [output, tokens] in
+                    Task { @MainActor [output, tokens, params] in
                         try await Task.sleep(for: .milliseconds(30))
                         self.status = .done(.init(
                             prompt: config.prompt,
                             result: output,
                             duration: Date().timeIntervalSince(start),
                             finishReason: reason,
-                            tokens: tokens
+                            tokens: tokens,
+                            seed: Int(params.seed)
                         ))
                     }
                     continuation.resume()
