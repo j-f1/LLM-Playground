@@ -19,7 +19,9 @@ class LLaMAInvoker: ObservableObject {
         state.model.hparams
     }
 
-    init() {
+    static let shared = LLaMAInvoker()
+
+    private init() {
         DispatchQueue.global().async {
 //            _ = llama_bootstrap(Bundle.main.path(forResource: "7b-q4_0", ofType: "bin"), &self.state) { progress in
             _ = llama_bootstrap("/Users/jed/Documents/github-clones/llama.cpp/7b-q4_0.bin", &self.state) { progress in

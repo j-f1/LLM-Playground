@@ -14,7 +14,7 @@ extension Defaults.Keys {
 
 struct ContentView: View {
     @Default(.config) var config
-    @StateObject var completer = LLaMAInvoker()
+    @ObservedObject var completer = LLaMAInvoker.shared
     @Environment(\.openURL) var openURL
     
     @FocusState var focusedEditField: EditField?
