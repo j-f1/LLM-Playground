@@ -32,6 +32,9 @@ class LLaMAInvoker: ObservableObject {
             }
         }
     }
+    deinit {
+        llama_finalize(&state)
+    }
 
     enum Status: Hashable {
         case starting(Float)
