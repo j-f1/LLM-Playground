@@ -10,9 +10,11 @@ import SwiftUI
 import LLaMAcpp
 
 class LLaMAInvoker: ObservableObject {
-    @Published var status = Status.working
+    @Published var status = Status.missingModel
+    @Published var loadingModel = false
 
     private var state = llama_state()
+    private var modelLoaded = false
     private var shouldStop = false
 
     var hParams: llama_hparams {
@@ -22,15 +24,28 @@ class LLaMAInvoker: ObservableObject {
     static let shared = LLaMAInvoker()
 
     private init() {
+        #if os(iOS)
+        print("Available memory: \(os_proc_available_memory().formatted(.byteCount(style: .memory)))")
+        #endif
+    }
+
+    func loadModel(at url: URL) {
+        guard !loadingModel else { return }
+        loadingModel = true
         DispatchQueue.global().async {
 //            _ = llama_bootstrap(Bundle.main.path(forResource: "7b-q4_0", ofType: "bin"), &self.state) { progress in
-            _ = llama_bootstrap("/Users/jed/Documents/github-clones/llama.cpp/7b-q4_0.bin", &self.state) { progress in
+            if self.modelLoaded {
+                llama_finalize(&self.state)
+            }
+            _ = llama_bootstrap(url.path(percentEncoded: false), &self.state) { progress in
                 Task { @MainActor in
                     self.status = .starting(progress)
                 }
             }
             Task { @MainActor in
                 self.status = .idle
+                self.modelLoaded = true
+                self.loadingModel = false
             }
         }
     }
@@ -39,6 +54,7 @@ class LLaMAInvoker: ObservableObject {
     }
 
     enum Status: Hashable {
+        case missingModel
         case starting(Float)
         case idle
         case working

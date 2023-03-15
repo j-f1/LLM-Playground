@@ -10,12 +10,14 @@ import Defaults
 
 extension Defaults.Keys {
     static let config = Defaults.Key("Configuration", default: Configuration())
+    static let model = Defaults.Key<URL?>("Model URL")
 }
 
 struct ContentView: View {
     @Default(.config) var config
     @ObservedObject var completer = LLaMAInvoker.shared
     @Environment(\.openURL) var openURL
+    @Default(.model) var model
     
     @FocusState var focusedEditField: EditField?
     @State var selectedTab = EditField.input
@@ -65,6 +67,7 @@ struct ContentView: View {
         default:
             Button(action: run) { Label("Run", systemImage: "play.fill") }
                 .keyboardShortcut("R")
+                .disabled(completer.status == .missingModel)
         }
     }
     var body: some View {
@@ -91,7 +94,7 @@ struct ContentView: View {
             Divider()
             ScrollView {
                 VStack {
-                    ConfigView(config: $config, hParams: completer.hParams)
+                    ConfigView(config: $config, model: $model, hParams: completer.hParams)
                     Spacer()
                 }
             }
@@ -103,9 +106,19 @@ struct ContentView: View {
         }
 #endif
         content
+            .onAppear {
+                if let model {
+                    completer.loadModel(at: model)
+                }
+            }
+            .onChange(of: model) { model in
+                if let model {
+                    completer.loadModel(at: model)
+                }
+            }
             .onChange(of: completer.status) { status in
                 switch status {
-                case .idle, .working, .starting:
+                case .missingModel, .idle, .working, .starting:
                     modal = nil
                 case .progress, .done:
                     modal = .response

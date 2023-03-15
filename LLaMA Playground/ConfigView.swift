@@ -91,11 +91,33 @@ where Format.FormatInput == Value, Format.FormatOutput == String {
 
 struct ConfigView: View {
     @Binding var config: Configuration
+    @Binding var model: URL?
     let hParams: llama_hparams
-    @Environment(\.dismiss) var dismiss
+
+    @Environment(\.dismiss) private var dismiss
+    @State private var pickingModel = false
 
     var body: some View {
         Form {
+            LabeledContent {
+                Button(action: { pickingModel = true }) {
+                    if let model {
+                        HStack {
+                            Image(systemName: "brain.head.profile").accessibilityHidden(true)
+                            Text("\(model.lastPathComponent)").monospaced()
+                        }
+                    } else {
+                        Text("Select…")
+                    }
+                }.fileImporter(isPresented: $pickingModel, allowedContentTypes: [.data]) { result in
+                    if case .success(let url) = result {
+                        model = url
+                    }
+                }
+            } label: {
+                Text("Model")
+            }
+
             SliderField(
                 title: "Maximum Tokens", prompt: "256",
                 value: $config.tokens,
@@ -186,6 +208,6 @@ struct ConfigView: View {
 
 struct ConfigView_Previews: PreviewProvider {
     static var previews: some View {
-        ConfigView(config: .constant(Configuration()), hParams: .init())
+        ConfigView(config: .constant(Configuration()), model: .constant(nil), hParams: .init())
     }
 }
