@@ -120,17 +120,20 @@ class LLaMAInvoker: ObservableObject {
         let _: Void = try await withCheckedThrowingContinuation { continuation in
             DispatchQueue.global(qos: .userInitiated).async {
                 var params = gpt_params(config)
-                var output = ""
+                var output: [CChar] = []
                 var tokens = 0
                 let start = Date()
                 let result = llama_predict(&params, &self.state) { progress in
-                    output += bridge_string(progress.token)
+                    bridge_string(progress.token) { token, length in
+                        output.append(contentsOf: UnsafeBufferPointer<CChar>(start: token, count: Int(length)))
+//                        print(length, output.suffix(50))
+                    }
                     tokens += 1
                     let params = progress.params.pointee
                     Task { @MainActor [output, tokens] in
                         self.status = .progress(.init(
                             prompt: config.prompt,
-                            result: output,
+                            result: looseString(output),
                             duration: Date().timeIntervalSince(start),
                             finishReason: nil,
                             tokens: tokens,
@@ -146,7 +149,7 @@ class LLaMAInvoker: ObservableObject {
                         try await Task.sleep(for: .milliseconds(30))
                         self.status = .done(.init(
                             prompt: config.prompt,
-                            result: output,
+                            result: looseString(output),
                             duration: Date().timeIntervalSince(start),
                             finishReason: reason,
                             tokens: tokens,
@@ -189,6 +192,10 @@ extension gpt_params {
         repeat_penalty = Float(config.repeatPenalty)
 //        n_threads = 8
     }
+}
+
+func looseString(_ bytes: [CChar]) -> String {
+    return String(cString: bytes + [0])
 }
 
 struct LLaMAError: Error {}
