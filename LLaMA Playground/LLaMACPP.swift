@@ -33,7 +33,10 @@ class LLaMAInvoker: ObservableObject {
         guard !loadingModel else { return }
         loadingModel = true
         DispatchQueue.global().async {
+//            _ = llama_bootstrap(URL.documentsDirectory.appendingPathComponent("7b-q4_0.bin").path(percentEncoded: false), &self.state) { progress in
 //            _ = llama_bootstrap(Bundle.main.path(forResource: "7b-q4_0", ofType: "bin"), &self.state) { progress in
+//            _ = llama_bootstrap("/Users/jed/Documents/iOS/GPT-3 Playground/7b-q4_0.bin", &self.state) { progress in
+//            _ = llama_bootstrap("/Users/jed/Documents/github-clones/llama.cpp/13b-q4_0.bin", &self.state) { progress in
             if self.modelLoaded {
                 llama_finalize(&self.state)
             }
