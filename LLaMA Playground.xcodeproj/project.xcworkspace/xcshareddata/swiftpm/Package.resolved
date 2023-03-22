@@ -8,6 +8,15 @@
         "revision" : "981ccb0a01c54abbe3c12ccb8226108527bbf115",
         "version" : "6.3.0"
       }
+    },
+    {
+      "identity" : "llama.cpp",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/ggerganov/llama.cpp",
+      "state" : {
+        "branch" : "jed/spm",
+        "revision" : "eff9b5c9eaf5ae595b637f4a17fada75e663b480"
+      }
     }
   ],
   "version" : 2

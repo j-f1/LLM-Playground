@@ -6,7 +6,7 @@
 //
 
 import SwiftUI
-import LLaMAcpp
+import llama
 
 private struct SliderField<Value, SliderValue: BinaryFloatingPoint, Format: ParseableFormatStyle>: View
 where Format.FormatInput == Value, Format.FormatOutput == String, SliderValue.Stride: BinaryFloatingPoint {

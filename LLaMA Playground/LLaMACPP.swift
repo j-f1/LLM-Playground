@@ -7,19 +7,19 @@
 
 import Foundation
 import SwiftUI
-import LLaMAcpp
+import llama
 
 class LLaMAInvoker: ObservableObject {
     @Published var status = Status.missingModel
     @Published var loadingModel = false
 
-    private var state = llama_state()
+    private var ctx: OpaquePointer!
     private var modelLoaded = false
     private var shouldStop = false
 
-    var hParams: llama_hparams {
-        state.model.hparams
-    }
+//    var hParams: llama_hparams {
+//        state.model.hparams
+//    }
 
     static let shared = LLaMAInvoker()
 
@@ -29,7 +29,7 @@ class LLaMAInvoker: ObservableObject {
         #endif
     }
 
-    func loadModel(at url: URL) {
+    func loadModel(at url: URL, params: llama_context_params) {
         guard !loadingModel else { return }
         loadingModel = true
         DispatchQueue.global().async {
@@ -38,13 +38,14 @@ class LLaMAInvoker: ObservableObject {
 //            _ = llama_bootstrap("/Users/jed/Documents/iOS/GPT-3 Playground/7b-q4_0.bin", &self.state) { progress in
 //            _ = llama_bootstrap("/Users/jed/Documents/github-clones/llama.cpp/13b-q4_0.bin", &self.state) { progress in
             if self.modelLoaded {
-                llama_finalize(&self.state)
+                llama_free(self.ctx)
             }
-            _ = llama_bootstrap(url.path(percentEncoded: false), &self.state) { progress in
-                Task { @MainActor in
-                    self.status = .starting(progress)
-                }
-            }
+            self.ctx = llama_init_from_file(url.path(percentEncoded: false), params)
+//            { progress in
+//                Task { @MainActor in
+//                    self.status = .starting(progress)
+//                }
+//            }
             Task { @MainActor in
                 self.status = .idle
                 self.modelLoaded = true
@@ -53,7 +54,7 @@ class LLaMAInvoker: ObservableObject {
         }
     }
     deinit {
-        llama_finalize(&state)
+        llama_free(ctx)
     }
 
     enum Status: Hashable {
