@@ -154,13 +154,9 @@ class LLaMAInvoker: ObservableObject {
                 var output = ""
                 let start = Date()
 
-                let tokenList = llama_tokenize(self.ctx, config.prompt, true)
-                let promptTokenCount = llama_token_list_size(tokenList)
-                let embd_inp = Array<llama_token>(unsafeUninitializedCapacity: Int(promptTokenCount)) { buffer, initializedCount in
-                    llama_token_list_copy(tokenList, buffer.baseAddress, promptTokenCount)
-                    initializedCount = Int(promptTokenCount)
+                let embd_inp = Array<llama_token>(unsafeUninitializedCapacity: config.prompt.utf8.count) { buffer, initializedCount in
+                    initializedCount = Int(llama_tokenize(self.ctx, config.prompt, buffer.baseAddress, Int32(buffer.count), true))
                 }
-                llama_token_list_free(tokenList)
 
                 var embedding: [llama_token] = []
 
