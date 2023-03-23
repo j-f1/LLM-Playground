@@ -15,7 +15,6 @@ class LLaMAInvoker: ObservableObject {
 
     @Published private var ctx: OpaquePointer!
     private var modelLoaded = false
-    private var shouldStop = false
 
     var contextLength: Int32 {
         if let ctx {
@@ -71,13 +70,13 @@ class LLaMAInvoker: ObservableObject {
         case missingModel
         case starting(Double)
         case idle
-        case working
-        case progress(Response)
+        case working(Task<Void, Never>)
+        case progress(Task<Void, Never>, Response)
         case done(Response)
         case failed(WrappedError)
 
         var response: Response? {
-            if case .progress(let response) = self {
+            if case .progress(_, let response) = self {
                 return response
             }
             if case .done(let response) = self {
@@ -130,103 +129,126 @@ class LLaMAInvoker: ObservableObject {
         if case .working = status {
             assertionFailure()
         }
-        status = .working
-        Task {
+        status = .working(Task {
             do {
                 try await callAPI(request: request)
                 // todo: ???
             } catch {
+                if error is CancellationError {
+                    if case let .progress(_, response) = status {
+                        await MainActor.run {
+                            status = .done(.init(
+                                prompt: response.prompt,
+                                result: response.result,
+                                duration: response.duration,
+                                finishReason: .cancelled,
+                                tokens: response.tokens,
+                                seed: response.seed
+                            ))
+                        }
+                        return
+                    } else {
+                        print("unexpected cancellation!")
+                    }
+                }
                 print(error)
                 status = .failed(Status.WrappedError(error))
             }
-        }
+        })
     }
 
     func stop() {
-        shouldStop = true
+        if case .working(let task) = status {
+            task.cancel()
+        }
+        if case .progress(let task, _) = status {
+            task.cancel()
+        }
     }
 
     func callAPI(request config: Configuration) async throws {
-        let _: Void = try await withCheckedThrowingContinuation { continuation in
-            DispatchQueue.global(qos: .userInitiated).async { [self] in
-//                var params = gpt_params(config)
-                var tokens: [llama_token] = []
-                var output: [CChar] = []
-                let start = Date()
+        func response(_ reason: Status.Response.FinishReason?) -> Status.Response {
+            .init(
+                prompt: config.prompt,
+                result: looseString(output),
+                duration: Date().timeIntervalSince(start),
+                finishReason: reason,
+                tokens: tokens.count,
+                seed: config.seed
+            )
+        }
 
-                var response: Status.Response {
-                    .init(
-                        prompt: config.prompt,
-                        result: looseString(output),
-                        duration: Date().timeIntervalSince(start),
-                        finishReason: nil,
-                        tokens: tokens.count,
-                        seed: config.seed
-                    )
+        func process(_ token: llama_token) async {
+            tokens.append(token)
+            output.append(contentsOf: sequence(state: llama_token_to_str(ctx, token), next: { ptr in
+                if ptr.pointee != 0 {
+                    let char = ptr.pointee
+                    ptr += 1
+                    return char
                 }
+                return nil
+            }))
 
-                func process(_ token: llama_token) {
-                    tokens.append(token)
-                    output.append(contentsOf: sequence(state: llama_token_to_str(ctx, token), next: { ptr in
-                        if ptr.pointee != 0 {
-                            let char = ptr.pointee
-                            ptr += 1
-                            return char
-                        }
-                        return nil
-                    }))
-
-                    Task { @MainActor [response] in
-                        self.status = .progress(response)
-                    }
+            await Task { @MainActor [response] in
+                switch self.status {
+                case .working(let task), .progress(let task, _):
+                    self.status = .progress(task, response(nil))
+                default:
+                    print("Invalid status!", self.status)
                 }
+            }.value
+        }
 
-                let promptTokens = Array<llama_token>(unsafeUninitializedCapacity: config.prompt.utf8.count) { buffer, initializedCount in
-                    initializedCount = Int(llama_tokenize(ctx, config.prompt, buffer.baseAddress, Int32(buffer.count), true))
-                }
-                for var token in promptTokens {
-                    llama_eval(ctx, &token, 1, Int32(tokens.count), config.threads)
-                    process(token)
-                    if shouldStop {
-                        finish(reason: .cancelled)
-                        return
-                    }
-                }
+        var tokens: [llama_token] = []
+        var output: [CChar] = []
+        let start = Date()
 
-                while tokens.count < config.tokens {
-                    var token = tokens.suffix(config.repeatWindow).withUnsafeBufferPointer { ptr in
-                        llama_sample_top_p_top_k(ctx, ptr.baseAddress, Int32(ptr.count), Int32(config.topK), config.topP, config.temperature, config.repeatPenalty)
-                    }
-                    if token == llama_token_eos() {
-                        finish(reason: .endOfText)
-                    }
-                    process(token)
-                    if shouldStop {
-                        finish(reason: .cancelled)
-                        return
-                    }
-                    llama_eval(ctx, &token, 1, Int32(tokens.count), config.threads)
-                    if shouldStop {
-                        finish(reason: .cancelled)
-                        return
-                    }
-                }
+        let promptTokens = await runBlocking { [ctx] in
+            Array<llama_token>(unsafeUninitializedCapacity: config.prompt.utf8.count) { buffer, initializedCount in
+                initializedCount = Int(llama_tokenize(ctx, config.prompt, buffer.baseAddress, Int32(buffer.count), true))
+            }
+        }
 
-                if shouldStop {
-                    finish(reason: .limit)
-                    return
-                }
+        for var token in promptTokens {
+            let ok = await runBlocking { [ctx] in
+                llama_eval(ctx, &token, 1, Int32(tokens.count), config.threads)
+            }
+            if ok != 0 {
+                throw LLaMAError.evalFailed
+            }
+            await process(token)
+        }
 
-                self.shouldStop = false
+        try Task.checkCancellation()
 
-                func finish(reason: Status.Response.FinishReason) {
-                    Task { @MainActor [response] in
-                        try await Task.sleep(for: .milliseconds(30))
-                        self.status = .done(response)
-                    }
-                    continuation.resume()
+        while tokens.count < config.tokens {
+            var token = await runBlocking { [ctx] in
+                tokens.suffix(config.repeatWindow).withUnsafeBufferPointer { ptr in
+                    llama_sample_top_p_top_k(ctx, ptr.baseAddress, Int32(ptr.count), Int32(config.topK), config.topP, config.temperature, config.repeatPenalty)
                 }
             }
+            if token == llama_token_eos() {
+                self.status = .done(response(.endOfText))
+                return
+            }
+
+            await process(token)
+
+            try Task.checkCancellation()
+            llama_eval(ctx, &token, 1, Int32(tokens.count), config.threads)
+            try Task.checkCancellation()
+        }
+
+        self.status = .done(response(.limit))
+    }
+}
+
+private let q = DispatchQueue(label: "llama")
+
+private func runBlocking<T>(_ cb: @escaping () -> T) async -> T {
+    await withCheckedContinuation { continuation in
+        q.async {
+            continuation.resume(returning: cb())
         }
     }
 }

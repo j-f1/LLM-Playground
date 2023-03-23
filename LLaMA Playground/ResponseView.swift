@@ -18,10 +18,10 @@ struct ResponseView: View {
     @Environment(\.displayScale) private var displayScale
     @StateObject private var annotation = ImageRenderer(content: AnnotationBadge(cancelled: false))
     private struct AnnotationBadge: View {
-        let cancelled: Bool
+        var cancelled: Bool
         var body: some View {
             (cancelled ? (
-                Label("Cancelled", systemImage: "stop.circle")
+                Label("Cancelled", systemImage: "stop")
             ) : (
                 Label("Exceeded Token Limit", systemImage: "exclamationmark.triangle")
             ))
@@ -179,6 +179,7 @@ struct ResponseView: View {
         }
         .onAppear { annotation.scale = displayScale }
         .onChange(of: displayScale, perform: { annotation.scale = $0 })
+        .onChange(of: response.finishReason == .cancelled, perform: { annotation.content.cancelled = $0 })
         #else
         HStack(spacing: 0) {
             ScrollView {
@@ -225,6 +226,8 @@ struct ResponseView: View {
         .frame(minWidth: 676)
         .onAppear { annotation.scale = displayScale }
         .onChange(of: displayScale, perform: { annotation.scale = $0 })
+        .onChange(of: response.finishReason == .cancelled, perform: { annotation.content.cancelled = $0 })
+
         #endif
     }
 }
