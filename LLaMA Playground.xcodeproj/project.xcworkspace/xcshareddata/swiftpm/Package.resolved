@@ -15,7 +15,7 @@
       "location" : "https://github.com/ggerganov/llama.cpp",
       "state" : {
         "branch" : "jed/spm",
-        "revision" : "eff9b5c9eaf5ae595b637f4a17fada75e663b480"
+        "revision" : "5a78a043954e8d0e91889ebf0c9b2de8dad040c7"
       }
     }
   ],

@@ -92,7 +92,7 @@ where Format.FormatInput == Value, Format.FormatOutput == String {
 struct ConfigView: View {
     @Binding var config: Configuration
     @Binding var model: URL?
-    let hParams: llama_hparams
+    let contextLength: Int32
 
     @Environment(\.dismiss) private var dismiss
     @State private var pickingModel = false
@@ -127,7 +127,7 @@ struct ConfigView: View {
                     config.tokens = Int(Darwin.pow($0, 2))
                 },
                 format: .number,
-                range: 1...sqrt(CGFloat(hParams.n_ctx))
+                range: 1...sqrt(CGFloat(contextLength))
             )
 
             Section {
@@ -178,7 +178,7 @@ struct ConfigView: View {
             SliderField(
                 title: "Repeat Window", prompt: "64",
                 value: $config.repeatWindow,
-                range: 0...Int(hParams.n_ctx)
+                range: 0...Int(contextLength)
             )
 
 //            Section {
@@ -208,6 +208,6 @@ struct ConfigView: View {
 
 struct ConfigView_Previews: PreviewProvider {
     static var previews: some View {
-        ConfigView(config: .constant(Configuration()), model: .constant(nil), hParams: .init())
+        ConfigView(config: .constant(Configuration()), model: .constant(nil), contextLength: 512)
     }
 }

@@ -13,13 +13,17 @@ class LLaMAInvoker: ObservableObject {
     @Published var status = Status.missingModel
     @Published var loadingModel = false
 
-    private var ctx: OpaquePointer!
+    @Published private var ctx: OpaquePointer!
     private var modelLoaded = false
     private var shouldStop = false
 
-//    var hParams: llama_hparams {
-//        state.model.hparams
-//    }
+    var contextLength: Int32 {
+        if let ctx {
+            return llama_n_ctx(ctx)
+        } else {
+            return 512
+        }
+    }
 
     static let shared = LLaMAInvoker()
 
@@ -29,7 +33,7 @@ class LLaMAInvoker: ObservableObject {
         #endif
     }
 
-    func loadModel(at url: URL, params: llama_context_params) {
+    func loadModel(at url: URL, params: llama_context_params = llama_context_default_params()) {
         guard !loadingModel else { return }
         loadingModel = true
         DispatchQueue.global().async {
@@ -40,15 +44,21 @@ class LLaMAInvoker: ObservableObject {
             if self.modelLoaded {
                 llama_free(self.ctx)
             }
-            self.ctx = llama_init_from_file(url.path(percentEncoded: false), params)
-//            { progress in
-//                Task { @MainActor in
-//                    self.status = .starting(progress)
-//                }
-//            }
+            let progressHandler = ClosureWrapper { progress in
+                Task { @MainActor in
+                    self.status = .starting(progress)
+                }
+            }
+
+            let ctx = llama_init_from_file(url.path(percentEncoded: false), params, progressHandler.handler)
             Task { @MainActor in
-                self.status = .idle
-                self.modelLoaded = true
+                self.ctx = ctx
+                if ctx != nil {
+                    self.status = .idle
+                    self.modelLoaded = true
+                } else {
+                    self.status = .missingModel
+                }
                 self.loadingModel = false
             }
         }
@@ -59,7 +69,7 @@ class LLaMAInvoker: ObservableObject {
 
     enum Status: Hashable {
         case missingModel
-        case starting(Float)
+        case starting(Double)
         case idle
         case working
         case progress(Response)
@@ -139,83 +149,130 @@ class LLaMAInvoker: ObservableObject {
     func callAPI(request config: Configuration) async throws {
         let _: Void = try await withCheckedThrowingContinuation { continuation in
             DispatchQueue.global(qos: .userInitiated).async {
-                var params = gpt_params(config)
-                var output: [CChar] = []
-                var tokens = 0
+//                var params = gpt_params(config)
+                var tokens: [llama_token] = []
+                var output = ""
                 let start = Date()
-                let result = llama_predict(&params, &self.state) { progress in
-                    bridge_string(progress.token) { token, length in
-                        output.append(contentsOf: UnsafeBufferPointer<CChar>(start: token, count: Int(length)))
-//                        print(length, output.suffix(50))
-                    }
-                    tokens += 1
-                    let params = progress.params.pointee
-                    Task { @MainActor [output, tokens] in
-                        self.status = .progress(.init(
-                            prompt: config.prompt,
-                            result: looseString(output),
-                            duration: Date().timeIntervalSince(start),
-                            finishReason: nil,
-                            tokens: tokens,
-                            seed: Int(params.seed)
-                        ))
-                    }
-                    return self.shouldStop
+
+                let tokenList = llama_tokenize(self.ctx, config.prompt, true)
+                let promptTokenCount = llama_token_list_size(tokenList)
+                let embd_inp = Array<llama_token>(unsafeUninitializedCapacity: Int(promptTokenCount)) { buffer, initializedCount in
+                    llama_token_list_copy(tokenList, buffer.baseAddress, promptTokenCount)
+                    initializedCount = Int(promptTokenCount)
                 }
+                llama_token_list_free(tokenList)
+
+                var embedding: [llama_token] = []
+
+                while tokens.count < config.tokens {
+                    if !embedding.isEmpty {
+                        embedding.withUnsafeBufferPointer { ptr in
+                            if llama_eval(self.ctx, ptr.baseAddress, Int32(ptr.count), Int32(tokens.count), Int32(config.threads)) != 0 {
+                                continuation.resume(throwing: LLaMAError.evalFailed)
+                            }
+                        }
+                    }
+                }
+
+//                let result = llama_predict(&params, &self.state) { progress in
+//                    bridge_string(progress.token) { token, length in
+//                        output.append(contentsOf: UnsafeBufferPointer<CChar>(start: token, count: Int(length)))
+//                        print(length, output.suffix(Int(length)))
+//                    }
+//                    tokens += 1
+//                    let params = progress.params.pointee
+//                    Task { @MainActor [output, tokens] in
+//                        self.status = .progress(.init(
+//                            prompt: config.prompt,
+//                            result: looseString(output),
+//                            duration: Date().timeIntervalSince(start),
+//                            finishReason: nil,
+//                            tokens: tokens,
+//                            seed: Int(params.seed)
+//                        ))
+//                    }
+//                    return self.shouldStop
+//                }
                 self.shouldStop = false
 
-                func finish(reason: Status.Response.FinishReason) {
-                    Task { @MainActor [output, tokens, params] in
-                        try await Task.sleep(for: .milliseconds(30))
-                        self.status = .done(.init(
-                            prompt: config.prompt,
-                            result: looseString(output),
-                            duration: Date().timeIntervalSince(start),
-                            finishReason: reason,
-                            tokens: tokens,
-                            seed: Int(params.seed)
-                        ))
-                    }
-                    continuation.resume()
-                }
+//                func finish(reason: Status.Response.FinishReason) {
+//                    Task { @MainActor [output, tokens, params] in
+//                        try await Task.sleep(for: .milliseconds(30))
+//                        self.status = .done(.init(
+//                            prompt: config.prompt,
+//                            result: looseString(output),
+//                            duration: Date().timeIntervalSince(start),
+//                            finishReason: reason,
+//                            tokens: tokens,
+//                            seed: Int(params.seed)
+//                        ))
+//                    }
+//                    continuation.resume()
+//                }
 
-                switch result {
-                case .error:
-                    continuation.resume(throwing: LLaMAError())
-                case .cancel:
-                    finish(reason: .cancelled)
-                case .limit:
-                    finish(reason: .limit)
-                case .end_of_text:
-                    finish(reason: .endOfText)
-                @unknown default:
-                    assertionFailure("Unexpected llama_predict result \(result.rawValue)")
-                    continuation.resume()
-                }
+//                switch result {
+//                case .error:
+//                    continuation.resume(throwing: LLaMAError())
+//                case .cancel:
+//                    finish(reason: .cancelled)
+//                case .limit:
+//                    finish(reason: .limit)
+//                case .end_of_text:
+//                    finish(reason: .endOfText)
+//                @unknown default:
+//                    assertionFailure("Unexpected llama_predict result \(result.rawValue)")
+//                    continuation.resume()
+//                }
             }
         }
     }
 }
 
-extension gpt_params {
-    init(_ config: Configuration) {
-        self.init()
-//        n_threads = Int32(config.threads)
-        n_predict = Int32(config.tokens)
-        top_k = Int32(config.topK)
-        top_p = Float(config.topP)
-        temp = Float(config.temperature)
-        n_batch = Int32(config.batchSize)
-        prompt = bridge_string(config.prompt)
-        seed = config.seed
-        repeat_last_n = Int32(config.repeatWindow)
-        repeat_penalty = Float(config.repeatPenalty)
-//        n_threads = 8
+class ClosureWrapper {
+    typealias Handler = (Double) -> Void
+    private let ptr = UnsafeMutablePointer<Handler>.allocate(capacity: 1)
+    init(_ closure: @escaping Handler) {
+        ptr.initialize(to: closure)
+    }
+
+    private var callback: @convention(c) (Double, UnsafeMutableRawPointer?) -> Void {
+        { progress, ptr in
+            let closurePointer = ptr?.assumingMemoryBound(to: Handler.self)
+            closurePointer?.pointee(progress)
+        }
+    }
+
+    var handler: llama_progress_handler {
+        .init(handler: callback, ctx: ptr)
+    }
+
+    deinit {
+        ptr.deinitialize(count: 1)
+        ptr.deallocate()
     }
 }
+
+//extension gpt_params {
+//    init(_ config: Configuration) {
+//        self.init()
+////        n_threads = Int32(config.threads)
+//        n_predict = Int32(config.tokens)
+//        top_k = Int32(config.topK)
+//        top_p = Float(config.topP)
+//        temp = Float(config.temperature)
+//        n_batch = Int32(config.batchSize)
+//        prompt = bridge_string(config.prompt)
+//        seed = config.seed
+//        repeat_last_n = Int32(config.repeatWindow)
+//        repeat_penalty = Float(config.repeatPenalty)
+////        n_threads = 8
+//    }
+//}
 
 func looseString(_ bytes: [CChar]) -> String {
     return String(cString: bytes + [0])
 }
 
-struct LLaMAError: Error {}
+enum LLaMAError: Error {
+    case evalFailed
+}
