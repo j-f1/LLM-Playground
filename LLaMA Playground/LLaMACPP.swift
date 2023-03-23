@@ -102,7 +102,7 @@ class LLaMAInvoker: ObservableObject {
             let duration: TimeInterval?
             let finishReason: FinishReason?
             let tokens: Int
-            let seed: Int
+            let seed: Int32
 
             enum FinishReason: Hashable {
                 case endOfText
@@ -148,77 +148,84 @@ class LLaMAInvoker: ObservableObject {
 
     func callAPI(request config: Configuration) async throws {
         let _: Void = try await withCheckedThrowingContinuation { continuation in
-            DispatchQueue.global(qos: .userInitiated).async {
+            DispatchQueue.global(qos: .userInitiated).async { [self] in
 //                var params = gpt_params(config)
                 var tokens: [llama_token] = []
-                var output = ""
+                var output: [CChar] = []
                 let start = Date()
 
-                let embd_inp = Array<llama_token>(unsafeUninitializedCapacity: config.prompt.utf8.count) { buffer, initializedCount in
-                    initializedCount = Int(llama_tokenize(self.ctx, config.prompt, buffer.baseAddress, Int32(buffer.count), true))
+                var response: Status.Response {
+                    .init(
+                        prompt: config.prompt,
+                        result: looseString(output),
+                        duration: Date().timeIntervalSince(start),
+                        finishReason: nil,
+                        tokens: tokens.count,
+                        seed: config.seed
+                    )
                 }
 
-                var embedding: [llama_token] = []
-
-                while tokens.count < config.tokens {
-                    if !embedding.isEmpty {
-                        embedding.withUnsafeBufferPointer { ptr in
-                            if llama_eval(self.ctx, ptr.baseAddress, Int32(ptr.count), Int32(tokens.count), Int32(config.threads)) != 0 {
-                                continuation.resume(throwing: LLaMAError.evalFailed)
-                            }
+                func process(_ token: llama_token) {
+                    tokens.append(token)
+                    output.append(contentsOf: sequence(state: llama_token_to_str(ctx, token), next: { ptr in
+                        if ptr.pointee != 0 {
+                            let char = ptr.pointee
+                            ptr += 1
+                            return char
                         }
+                        return nil
+                    }))
+
+                    Task { @MainActor [response] in
+                        self.status = .progress(response)
                     }
                 }
 
-//                let result = llama_predict(&params, &self.state) { progress in
-//                    bridge_string(progress.token) { token, length in
-//                        output.append(contentsOf: UnsafeBufferPointer<CChar>(start: token, count: Int(length)))
-//                        print(length, output.suffix(Int(length)))
-//                    }
-//                    tokens += 1
-//                    let params = progress.params.pointee
-//                    Task { @MainActor [output, tokens] in
-//                        self.status = .progress(.init(
-//                            prompt: config.prompt,
-//                            result: looseString(output),
-//                            duration: Date().timeIntervalSince(start),
-//                            finishReason: nil,
-//                            tokens: tokens,
-//                            seed: Int(params.seed)
-//                        ))
-//                    }
-//                    return self.shouldStop
-//                }
+                let promptTokens = Array<llama_token>(unsafeUninitializedCapacity: config.prompt.utf8.count) { buffer, initializedCount in
+                    initializedCount = Int(llama_tokenize(ctx, config.prompt, buffer.baseAddress, Int32(buffer.count), true))
+                }
+                for var token in promptTokens {
+                    llama_eval(ctx, &token, 1, Int32(tokens.count), config.threads)
+                    process(token)
+                    if shouldStop {
+                        finish(reason: .cancelled)
+                        return
+                    }
+                }
+
+                while tokens.count < config.tokens {
+                    var token = tokens.suffix(config.repeatWindow).withUnsafeBufferPointer { ptr in
+                        llama_sample_top_p_top_k(ctx, ptr.baseAddress, Int32(ptr.count), Int32(config.topK), config.topP, config.temperature, config.repeatPenalty)
+                    }
+                    if token == llama_token_eos() {
+                        finish(reason: .endOfText)
+                    }
+                    process(token)
+                    if shouldStop {
+                        finish(reason: .cancelled)
+                        return
+                    }
+                    llama_eval(ctx, &token, 1, Int32(tokens.count), config.threads)
+                    if shouldStop {
+                        finish(reason: .cancelled)
+                        return
+                    }
+                }
+
+                if shouldStop {
+                    finish(reason: .limit)
+                    return
+                }
+
                 self.shouldStop = false
 
-//                func finish(reason: Status.Response.FinishReason) {
-//                    Task { @MainActor [output, tokens, params] in
-//                        try await Task.sleep(for: .milliseconds(30))
-//                        self.status = .done(.init(
-//                            prompt: config.prompt,
-//                            result: looseString(output),
-//                            duration: Date().timeIntervalSince(start),
-//                            finishReason: reason,
-//                            tokens: tokens,
-//                            seed: Int(params.seed)
-//                        ))
-//                    }
-//                    continuation.resume()
-//                }
-
-//                switch result {
-//                case .error:
-//                    continuation.resume(throwing: LLaMAError())
-//                case .cancel:
-//                    finish(reason: .cancelled)
-//                case .limit:
-//                    finish(reason: .limit)
-//                case .end_of_text:
-//                    finish(reason: .endOfText)
-//                @unknown default:
-//                    assertionFailure("Unexpected llama_predict result \(result.rawValue)")
-//                    continuation.resume()
-//                }
+                func finish(reason: Status.Response.FinishReason) {
+                    Task { @MainActor [response] in
+                        try await Task.sleep(for: .milliseconds(30))
+                        self.status = .done(response)
+                    }
+                    continuation.resume()
+                }
             }
         }
     }

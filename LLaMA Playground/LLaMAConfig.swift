@@ -11,7 +11,7 @@ import Defaults
 struct Configuration: Codable, Defaults.Serializable {
     var seed: Int32 = -1
     var prompt = "Write a tagline for an ice cream shop."
-    var threads = 4
+    var threads: Int32 = 4
     var tokens = 128
     var topK = 40
     var topP = 0.9
