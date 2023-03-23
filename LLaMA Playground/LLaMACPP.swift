@@ -32,7 +32,7 @@ class LLaMAInvoker: ObservableObject {
         #endif
     }
 
-    func loadModel(at url: URL, params: llama_context_params = llama_context_default_params()) {
+    func loadModel(at url: URL) {
         guard !loadingModel else { return }
         loadingModel = true
         DispatchQueue.global().async {
@@ -49,7 +49,10 @@ class LLaMAInvoker: ObservableObject {
                 }
             }
 
-            let ctx = llama_init_from_file(url.path(percentEncoded: false), params, progressHandler.handler)
+            var params = llama_context_default_params()
+            params.progress_callback = progressHandler.handler
+            params.progress_ctx = progressHandler.ctx
+            let ctx = llama_init_from_file(url.path(percentEncoded: false), params)
             Task { @MainActor in
                 self.ctx = ctx
                 if ctx != nil {
@@ -260,15 +263,15 @@ class ClosureWrapper {
         ptr.initialize(to: closure)
     }
 
-    private var callback: @convention(c) (Double, UnsafeMutableRawPointer?) -> Void {
+    var ctx: UnsafeMutableRawPointer {
+        .init(ptr)
+    }
+
+    var handler: llama_progress_handler {
         { progress, ptr in
             let closurePointer = ptr?.assumingMemoryBound(to: Handler.self)
             closurePointer?.pointee(progress)
         }
-    }
-
-    var handler: llama_progress_handler {
-        .init(handler: callback, ctx: ptr)
     }
 
     deinit {

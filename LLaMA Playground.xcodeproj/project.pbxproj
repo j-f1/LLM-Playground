@@ -430,7 +430,7 @@
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/ggerganov/llama.cpp";
 			requirement = {
-				branch = jed/spm;
+				branch = "jed/load-progress";
 				kind = branch;
 			};
 		};
