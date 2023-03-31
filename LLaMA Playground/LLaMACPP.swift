@@ -38,8 +38,11 @@ class LLaMAInvoker: ObservableObject {
         DispatchQueue.global().async {
             if self.modelLoaded {
                 llama_free(self.ctx)
+                self.ctx = nil
             }
+            var shouldSendProgress = true
             let progressHandler = ClosureWrapper { progress in
+                guard shouldSendProgress else { return }
                 Task { @MainActor in
                     self.status = .starting(progress)
                 }
@@ -49,7 +52,9 @@ class LLaMAInvoker: ObservableObject {
             params.progress_callback = progressHandler.handler
             params.progress_ctx = progressHandler.ctx
             let ctx = llama_init_from_file(url.path(percentEncoded: false), params)
+            shouldSendProgress = false
             Task { @MainActor in
+                try await Task.sleep(for: .milliseconds(100))
                 self.ctx = ctx
                 if ctx != nil {
                     self.status = .idle
@@ -209,6 +214,7 @@ class LLaMAInvoker: ObservableObject {
         }
 
         for var token in promptTokens {
+            print("llama_eval(ctx, &\(token), 1, \(tokens.count), \(config.threads))")
             let ok = await runBlocking { [ctx] in
                 llama_eval(ctx, &token, 1, Int32(tokens.count), config.threads)
             }
@@ -226,16 +232,16 @@ class LLaMAInvoker: ObservableObject {
                     llama_sample_top_p_top_k(ctx, ptr.baseAddress, Int32(ptr.count), Int32(config.topK), config.topP, config.temperature, config.repeatPenalty)
                 }
             }
-            if token == llama_token_eos() {
-                self.status = .done(response(.endOfText))
-                return
-            }
-
             await process(token)
 
             try Task.checkCancellation()
             llama_eval(ctx, &token, 1, Int32(tokens.count), config.threads)
             try Task.checkCancellation()
+
+            if token == llama_token_eos() {
+                self.status = .done(response(.endOfText))
+                return
+            }
         }
 
         self.status = .done(response(.limit))
