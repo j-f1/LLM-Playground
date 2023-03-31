@@ -50,7 +50,7 @@ class LLaMAInvoker: ObservableObject {
 
             var params = llama_context_default_params()
             params.progress_callback = progressHandler.handler
-            params.progress_ctx = progressHandler.ctx
+            params.progress_callback_user_data = progressHandler.ctx
             let ctx = llama_init_from_file(url.path(percentEncoded: false), params)
             shouldSendProgress = false
             Task { @MainActor in
@@ -72,7 +72,7 @@ class LLaMAInvoker: ObservableObject {
 
     enum Status: Hashable {
         case missingModel
-        case starting(Double)
+        case starting(Float)
         case idle
         case working(Task<Void, Never>)
         case progress(Task<Void, Never>, Response)
@@ -229,7 +229,7 @@ class LLaMAInvoker: ObservableObject {
         while tokens.count < config.tokens {
             var token = await runBlocking { [ctx] in
                 tokens.suffix(config.repeatWindow).withUnsafeBufferPointer { ptr in
-                    llama_sample_top_p_top_k(ctx, ptr.baseAddress, Int32(ptr.count), Int32(config.topK), config.topP, config.temperature, config.repeatPenalty)
+                    llama_sample_top_p_top_k(ctx, ptr.baseAddress, Int32(ptr.count), Int32(config.topK), Float(config.topP), Float(config.temperature), Float(config.repeatPenalty))
                 }
             }
             await process(token)
@@ -259,7 +259,7 @@ private func runBlocking<T>(_ cb: @escaping () -> T) async -> T {
 }
 
 class ClosureWrapper {
-    typealias Handler = (Double) -> Void
+    typealias Handler = (Float) -> Void
     private let ptr = UnsafeMutablePointer<Handler>.allocate(capacity: 1)
     init(_ closure: @escaping Handler) {
         ptr.initialize(to: closure)
@@ -269,7 +269,7 @@ class ClosureWrapper {
         .init(ptr)
     }
 
-    var handler: llama_progress_handler {
+    var handler: llama_progress_callback {
         { progress, ptr in
             let closurePointer = ptr?.assumingMemoryBound(to: Handler.self)
             closurePointer?.pointee(progress)
