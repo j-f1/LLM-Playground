@@ -38,7 +38,9 @@ class LLaMAInvoker: ObservableObject {
         DispatchQueue.global().async {
             if self.modelLoaded {
                 llama_free(self.ctx)
-                self.ctx = nil
+                Task { @MainActor in
+                    self.ctx = nil
+                }
             }
             var shouldSendProgress = true
             let progressHandler = ClosureWrapper { progress in
@@ -239,12 +241,18 @@ class LLaMAInvoker: ObservableObject {
             try Task.checkCancellation()
 
             if token == llama_token_eos() {
-                self.status = .done(response(.endOfText))
+                let status = Status.done(response(.endOfText))
+                await MainActor.run {
+                    self.status = status
+                }
                 return
             }
         }
 
-        self.status = .done(response(.limit))
+        let status = Status.done(response(.limit))
+        await MainActor.run {
+            self.status = status
+        }
     }
 }
 
