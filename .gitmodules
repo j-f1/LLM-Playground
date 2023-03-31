@@ -1,3 +1,0 @@
-[submodule "llama"]
-	path = llama
-	url = https://github.com/j-f1/forked-llama.cpp
