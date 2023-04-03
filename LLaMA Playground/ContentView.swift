@@ -178,7 +178,7 @@ struct ContentView: View {
                 #if os(iOS)
                 case .config:
                     NavigationStack {
-                        ConfigView(config: $config, hParams: completer.hParams)
+                        ConfigView(config: $config, model: $model, contextLength: completer.contextLength)
                     }
                 #endif
                 }
