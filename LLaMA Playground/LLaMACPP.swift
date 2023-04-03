@@ -215,15 +215,17 @@ class LLaMAInvoker: ObservableObject {
             }
         }
 
-        for var token in promptTokens {
-            print("llama_eval(ctx, &\(token), 1, \(tokens.count), \(config.threads))")
+        for var chunk in promptTokens.chunks(maxLength: config.batchSize) {
+            print("llama_eval(ctx, &[\(chunk.map(String.init).joined(separator: ", "))], \(chunk.count), \(tokens.count), \(config.threads))")
             let ok = await runBlocking { [ctx] in
-                llama_eval(ctx, &token, 1, Int32(tokens.count), config.threads)
+                llama_eval(ctx, &chunk, Int32(chunk.count), Int32(tokens.count), config.threads)
             }
             if ok != 0 {
                 throw LLaMAError.evalFailed
             }
-            await process(token)
+            for token in chunk {
+                await process(token)
+            }
         }
 
         try Task.checkCancellation()
@@ -253,6 +255,35 @@ class LLaMAInvoker: ObservableObject {
         await MainActor.run {
             self.status = status
         }
+    }
+}
+
+extension Sequence {
+    func chunks(maxLength: Int) -> some Sequence<[Element]> {
+        AnySequence {
+            ChunkIterator(iterator: makeIterator(), maxLength: maxLength)
+        }
+    }
+}
+
+private class ChunkIterator<I: IteratorProtocol>: IteratorProtocol {
+    private var iterator: I
+    private let maxLength: Int
+
+    init(iterator: I, maxLength: Int) {
+        self.iterator = iterator
+        self.maxLength = maxLength
+    }
+
+    func next() -> [I.Element]? {
+        var result: [I.Element] = []
+        while result.count < maxLength, let element = iterator.next() {
+            result.append(element)
+        }
+        if result.isEmpty {
+            return nil
+        }
+        return result
     }
 }
 
