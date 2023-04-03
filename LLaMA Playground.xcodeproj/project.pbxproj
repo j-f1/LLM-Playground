@@ -41,7 +41,6 @@
 		8539E90F28DD32990065F160 /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
 		8539E91A28DD3DA10065F160 /* ConfigView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConfigView.swift; sourceTree = "<group>"; };
 		8539E91E28DD5E610065F160 /* LLaMA-Playground-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "LLaMA-Playground-Info.plist"; sourceTree = SOURCE_ROOT; };
-		855CACFB29BD15580013A286 /* 7b-q4_0.bin */ = {isa = PBXFileReference; lastKnownFileType = archive.macbinary; path = "7b-q4_0.bin"; sourceTree = "<group>"; };
 		8566E6DE29BCB8F100491F32 /* LLaMAConfig.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LLaMAConfig.swift; sourceTree = "<group>"; };
 		8566E6E129BCBA9300491F32 /* LLaMACPP.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LLaMACPP.swift; sourceTree = "<group>"; };
 		85E40C15292195F000E6258E /* ResponseView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ResponseView.swift; sourceTree = "<group>"; };
@@ -63,7 +62,6 @@
 		8539E8FB28DD32970065F160 = {
 			isa = PBXGroup;
 			children = (
-				855CACFB29BD15580013A286 /* 7b-q4_0.bin */,
 				8539E90628DD32970065F160 /* LLaMA Playground */,
 				8539E90528DD32970065F160 /* Products */,
 				8566E71829BCC63E00491F32 /* Frameworks */,
