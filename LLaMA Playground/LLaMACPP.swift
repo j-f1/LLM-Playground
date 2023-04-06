@@ -53,7 +53,9 @@ class LLaMAInvoker: ObservableObject {
             var params = llama_context_default_params()
             params.progress_callback = progressHandler.handler
             params.progress_callback_user_data = progressHandler.ctx
-            let ctx = llama_init_from_file(url.path(percentEncoded: false), params)
+            let ctx = url.withUnsafeFileSystemRepresentation { path in
+                llama_init_from_file(path, params)
+            }
             shouldSendProgress = false
             Task { @MainActor in
                 try await Task.sleep(for: .milliseconds(100))
