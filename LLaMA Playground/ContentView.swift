@@ -44,21 +44,7 @@ struct ContentView: View {
     @ViewBuilder
     var completeButton: some View {
         switch completer.status {
-        case .starting(let progress):
-            #if os(macOS)
-            ProgressView(value: progress)
-                .help("\(progress, format: .percent)")
-                .progressViewStyle(.circular)
-                .controlSize(.small)
-                .padding(.trailing, 6)
-            #else
-            Gauge(value: progress, in: 0...1) {
-                Text("\(progress, format: .percent)")
-            }
-            .gaugeStyle(.accessoryCircularCapacity)
-            .controlSize(.mini)
-            #endif
-        case .working:
+        case .starting, .working:
             ProgressView()
                 #if os(macOS)
                 .controlSize(.small)

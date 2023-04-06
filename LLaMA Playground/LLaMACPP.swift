@@ -35,6 +35,7 @@ class LLaMAInvoker: ObservableObject {
     func loadModel(at url: URL) {
         guard !loadingModel else { return }
         loadingModel = true
+        self.status = .starting
         DispatchQueue.global().async {
             if self.modelLoaded {
                 llama_free(self.ctx)
@@ -42,21 +43,11 @@ class LLaMAInvoker: ObservableObject {
                     self.ctx = nil
                 }
             }
-            var shouldSendProgress = true
-            let progressHandler = ClosureWrapper { progress in
-                guard shouldSendProgress else { return }
-                Task { @MainActor in
-                    self.status = .starting(progress)
-                }
-            }
 
             var params = llama_context_default_params()
-            params.progress_callback = progressHandler.handler
-            params.progress_callback_user_data = progressHandler.ctx
             let ctx = url.withUnsafeFileSystemRepresentation { path in
                 llama_init_from_file(path, params)
             }
-            shouldSendProgress = false
             Task { @MainActor in
                 try await Task.sleep(for: .milliseconds(100))
                 self.ctx = ctx
@@ -76,7 +67,7 @@ class LLaMAInvoker: ObservableObject {
 
     enum Status: Hashable {
         case missingModel
-        case starting(Float)
+        case starting
         case idle
         case working(Task<Void, Never>)
         case progress(Task<Void, Never>, Response)
