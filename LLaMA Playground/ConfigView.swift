@@ -102,9 +102,9 @@ struct ConfigView: View {
             LabeledContent {
                 Button(action: { pickingModel = true }) {
                     if let model {
-                        HStack {
+                        HStack(spacing: 0) {
                             Image(systemName: "brain.head.profile").accessibilityHidden(true)
-                            Text("\(model.lastPathComponent)").monospaced()
+                            Text(" \(model.lastPathComponent)")
                         }
                     } else {
                         Text("Select…")
