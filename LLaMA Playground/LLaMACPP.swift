@@ -45,6 +45,7 @@ class LLaMAInvoker: ObservableObject {
             }
 
             var params = llama_context_default_params()
+            params.n_ctx = 2048
             let ctx = url.withUnsafeFileSystemRepresentation { path in
                 llama_init_from_file(path, params)
             }
