@@ -210,7 +210,7 @@ class LLaMAInvoker: ObservableObject {
         }
 
         for var chunk in promptTokens.chunks(maxLength: config.batchSize) {
-            print("llama_eval(ctx, &[\(chunk.map(String.init).joined(separator: ", "))], \(chunk.count), \(tokens.count), \(config.threads))")
+//            print("llama_eval(ctx, &[\(chunk.map(String.init).joined(separator: ", "))], \(chunk.count), \(tokens.count), \(config.threads))")
             let ok = await runBlocking { [ctx] in
                 llama_eval(ctx, &chunk, Int32(chunk.count), Int32(tokens.count), config.threads)
             }
