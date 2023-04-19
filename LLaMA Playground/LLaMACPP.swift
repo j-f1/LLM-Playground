@@ -46,6 +46,7 @@ class LLaMAInvoker: ObservableObject {
 
             var params = llama_context_default_params()
             params.n_ctx = 2048
+            params.seed = -1
             let ctx = url.withUnsafeFileSystemRepresentation { path in
                 llama_init_from_file(path, params)
             }
@@ -101,7 +102,6 @@ class LLaMAInvoker: ObservableObject {
             let duration: TimeInterval?
             let finishReason: FinishReason?
             let tokens: Int
-            let seed: Int32
 
             enum FinishReason: Hashable {
                 case endOfText
@@ -142,8 +142,7 @@ class LLaMAInvoker: ObservableObject {
                                 result: response.result,
                                 duration: response.duration,
                                 finishReason: .cancelled,
-                                tokens: response.tokens,
-                                seed: response.seed
+                                tokens: response.tokens
                             ))
                         }
                         return
@@ -173,8 +172,7 @@ class LLaMAInvoker: ObservableObject {
                 result: looseString(output),
                 duration: Date().timeIntervalSince(start),
                 finishReason: reason,
-                tokens: tokens.count,
-                seed: config.seed
+                tokens: tokens.count
             )
         }
 

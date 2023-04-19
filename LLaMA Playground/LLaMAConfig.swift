@@ -9,7 +9,6 @@ import Foundation
 import Defaults
 
 struct Configuration: Codable, Defaults.Serializable {
-    var seed: Int32 = -1
     var prompt = "### Human: What is the meaning of life?\n### Assistant:"
     var threads: Int32 = 4
     var tokens = 2048

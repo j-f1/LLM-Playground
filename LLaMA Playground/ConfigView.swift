@@ -130,18 +130,6 @@ struct ConfigView: View {
                 range: 1...sqrt(CGFloat(contextLength))
             )
 
-            Section {
-                IntField(
-                    title: "Seed", prompt: "-1 (random)",
-                    value: $config.seed,
-                    format: .number,
-                    range: 0...100
-                )
-                Button("Randomize") {
-                    config.seed = .random(in: 0 ..< .max)
-                }
-            }
-
             SliderField(
                 title: "Temperature", prompt: "0.8",
                 value: $config.temperature,

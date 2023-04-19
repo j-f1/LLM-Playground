@@ -108,7 +108,6 @@ struct ResponseView: View {
                 }
                 return "thermometer.high"
             }())
-            Label(String(response.seed), systemImage: "leaf").textSelection(.enabled)
             #endif
         }
 
