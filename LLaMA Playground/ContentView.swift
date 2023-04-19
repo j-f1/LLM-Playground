@@ -18,6 +18,7 @@ struct ContentView: View {
     @ObservedObject var completer = LLaMAInvoker.shared
     @Environment(\.openURL) var openURL
     @Default(.model) var model
+    @AppStorage("Use float16 memory") var f16 = true
     
     @FocusState var focusedEditField: EditField?
     @State var selectedTab = EditField.input
@@ -80,7 +81,7 @@ struct ContentView: View {
             Divider()
             ScrollView {
                 VStack {
-                    ConfigView(config: $config, model: $model, contextLength: completer.contextLength)
+                    ConfigView(config: $config, model: $model, f16: $f16, contextLength: completer.contextLength)
                     Spacer()
                 }
             }
@@ -94,12 +95,17 @@ struct ContentView: View {
         content
             .onAppear {
                 if let model {
-                    completer.loadModel(at: model)
+                    completer.loadModel(at: model, f16: f16)
                 }
             }
             .onChange(of: model) { model in
                 if let model {
-                    completer.loadModel(at: model)
+                    completer.loadModel(at: model, f16: f16)
+                }
+            }
+            .onChange(of: f16) { f16 in
+                if let model {
+                    completer.loadModel(at: model, f16: f16)
                 }
             }
             .onChange(of: completer.status) { status in
@@ -164,7 +170,7 @@ struct ContentView: View {
                 #if os(iOS)
                 case .config:
                     NavigationStack {
-                        ConfigView(config: $config, model: $model, contextLength: completer.contextLength)
+                        ConfigView(config: $config, model: $model, f16: $f16, contextLength: completer.contextLength)
                     }
                 #endif
                 }

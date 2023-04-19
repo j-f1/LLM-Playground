@@ -110,6 +110,7 @@ where Format.FormatInput == Value, Format.FormatOutput == String {
 struct ConfigView: View {
     @Binding var config: Configuration
     @Binding var model: URL?
+    @Binding var f16: Bool
     let contextLength: Int32
 
     @Environment(\.dismiss) private var dismiss
@@ -134,6 +135,13 @@ struct ConfigView: View {
                 }
             } label: {
                 Text("Model")
+            }
+
+            Section {
+                Toggle("Use \(Text("float16").font(.body.monospaced())) memory", isOn: $f16)
+                Text("This will significantly reduce memory usage and improve generation speed, but may reduce output quality.")
+                    .font(.caption)
+                    .foregroundColor(.secondary)
             }
 
             SliderField(
@@ -212,6 +220,6 @@ struct ConfigView: View {
 
 struct ConfigView_Previews: PreviewProvider {
     static var previews: some View {
-        ConfigView(config: .constant(Configuration()), model: .constant(nil), contextLength: 512)
+        ConfigView(config: .constant(Configuration()), model: .constant(nil), f16: .constant(false), contextLength: 512)
     }
 }

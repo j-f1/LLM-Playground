@@ -32,7 +32,7 @@ class LLaMAInvoker: ObservableObject {
         #endif
     }
 
-    func loadModel(at url: URL) {
+    func loadModel(at url: URL, f16: Bool) {
         guard !loadingModel else { return }
         loadingModel = true
         self.status = .starting
@@ -47,6 +47,7 @@ class LLaMAInvoker: ObservableObject {
             var params = llama_context_default_params()
             params.n_ctx = 2048
             params.seed = -1
+            params.f16_kv = f16
             let ctx = url.withUnsafeFileSystemRepresentation { path in
                 llama_init_from_file(path, params)
             }
