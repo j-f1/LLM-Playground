@@ -16,10 +16,13 @@ where Format.FormatInput == Value, Format.FormatOutput == String, SliderValue.St
     @Binding var sliderValue: SliderValue
     let format: Format
     let range: ClosedRange<SliderValue>
+    let docs: LocalizedStringKey?
 
     var body: some View {
         Section {
-            let slider = Slider(value: $sliderValue, in: range)
+            let slider = VStack {
+                Slider(value: $sliderValue, in: range)
+            }
 #if os(iOS)
             LabeledContent(title) {
                 TextField(prompt, value: $value, format: format)
@@ -40,29 +43,36 @@ where Format.FormatInput == Value, Format.FormatOutput == String, SliderValue.St
                 slider
             }
 #endif
+            if let docs {
+                Text(docs)
+                    .font(.caption)
+                    .foregroundColor(.secondary)
+            }
         }
     }
 }
 
 extension SliderField where Value == Double, SliderValue == Value, Format == FloatingPointFormatStyle<Double> {
-    init(title: LocalizedStringKey, prompt: LocalizedStringKey, value: Binding<Value>, format: Format = .number.precision(.fractionLength(2)), range: ClosedRange<SliderValue>) {
+    init(title: LocalizedStringKey, prompt: LocalizedStringKey, value: Binding<Value>, format: Format = .number.precision(.fractionLength(2)), range: ClosedRange<SliderValue>, docs: LocalizedStringKey?) {
         self.title = title
         self.prompt = prompt
         self._value = value
         self._sliderValue = value
         self.format = format
         self.range = range
+        self.docs = docs
     }
 }
 
 extension SliderField where Value: BinaryInteger, SliderValue == Double, Format == IntegerFormatStyle<Int> {
-    init(title: LocalizedStringKey, prompt: LocalizedStringKey, value: Binding<Value>, format: Format = .number, range: ClosedRange<Value>) {
+    init(title: LocalizedStringKey, prompt: LocalizedStringKey, value: Binding<Value>, format: Format = .number, range: ClosedRange<Value>, docs: LocalizedStringKey?) {
         self.title = title
         self.prompt = prompt
         self._value = value
         self._sliderValue = Binding { Double(value.wrappedValue) } set: { value.wrappedValue = Value($0) }
         self.format = format
         self.range = Double(range.lowerBound)...Double(range.upperBound)
+        self.docs = docs
     }
 }
 
@@ -73,18 +83,26 @@ where Format.FormatInput == Value, Format.FormatOutput == String {
     @Binding var value: Value
     let format: Format
     let range: ClosedRange<Value>
+    let docs: LocalizedStringKey?
 
     var body: some View {
+        Section {
 #if os(iOS)
-        LabeledContent(title) {
-            TextField(prompt, value: $value, format: format)
-                .multilineTextAlignment(.trailing)
-                .keyboardType(.decimalPad)
-        }
+            LabeledContent(title) {
+                TextField(prompt, value: $value, format: format)
+                    .multilineTextAlignment(.trailing)
+                    .keyboardType(.decimalPad)
+            }
 #else
-        TextField(title, value: $value, format: format, prompt: Text(prompt))
-            .multilineTextAlignment(.trailing)
+            TextField(title, value: $value, format: format, prompt: Text(prompt))
+                .multilineTextAlignment(.trailing)
 #endif
+            if let docs {
+                Text(docs)
+                    .font(.caption)
+                    .foregroundColor(.secondary)
+            }
+        }
     }
 }
 
@@ -119,6 +137,13 @@ struct ConfigView: View {
             }
 
             SliderField(
+                title: "Temperature", prompt: "0.19",
+                value: $config.temperature,
+                range: 0...2,
+                docs: "Higher values produce less intelligible results. Lower values produce consistent, boring results. Values in between produce the most useful/interesting, and the best value is highly prompt-dependent."
+            )
+
+            SliderField(
                 title: "Maximum Tokens", prompt: "256",
                 value: $config.tokens,
                 sliderValue: Binding {
@@ -127,28 +152,8 @@ struct ConfigView: View {
                     config.tokens = Int(Darwin.pow($0, 2))
                 },
                 format: .number,
-                range: 1...sqrt(CGFloat(contextLength))
-            )
-
-            SliderField(
-                title: "Temperature", prompt: "0.8",
-                value: $config.temperature,
-                range: 0...2
-            )
-
-//            Section {
-//                IntField(
-//                    title: "Top K", prompt: "40",
-//                    value: $config.topK,
-//                    format: .number,
-//                    range: 0...100
-//                )
-//            }
-
-            SliderField(
-                title: "Top P", prompt: "0.9",
-                value: $config.topP,
-                range: 0...1
+                range: 1...sqrt(CGFloat(contextLength)),
+                docs: "Limits the amount of text the model will generate before stopping itself."
             )
 
             SliderField(
@@ -160,22 +165,33 @@ struct ConfigView: View {
                     config.repeatPenalty = Darwin.pow($0, 2)
                 },
                 format: .number,
-                range: 1...sqrt(CGFloat(10))
+                range: 1...sqrt(CGFloat(10)),
+                docs: "If set to a value greater than 1, recent tokens will be less likely to appear in the output again. This can help stop the model from repeating itself."
             )
 
             SliderField(
                 title: "Repeat Window", prompt: "64",
                 value: $config.repeatWindow,
-                range: 0...Int(contextLength)
+                range: 0...Int(contextLength),
+                docs: "If “Repeat Penalty” is more than 1, this many recent tokens will be considered for penalization."
             )
 
-//            Section {
-//                Picker("Model", selection: $config.model) {
-//                    ForEach(Configuration.Model.allCases, id: \.self) { model in
-//                        Text("\(model.rawValue)").tag(model)
-//                    }
-//                }
-//            }
+            Section {
+                IntField(
+                    title: "Top K", prompt: "40",
+                    value: $config.topK,
+                    format: .number,
+                    range: 0...100,
+                    docs: "Consider only this many possible next tokens each time."
+                )
+            }
+
+            SliderField(
+                title: "Top P", prompt: "1.0",
+                value: $config.topP,
+                range: 0...1,
+                docs: "Filters out the least likely possible next tokens."
+            )
         }
         .monospacedDigit()
 #if os(iOS)
