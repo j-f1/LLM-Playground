@@ -32,6 +32,8 @@ class LLaMAInvoker: ObservableObject {
         #endif
     }
 
+    let safeTokens = [llama_token_nl()]
+
     func loadModel(at url: URL, f16: Bool) {
         guard !loadingModel else { return }
         loadingModel = true
@@ -223,10 +225,42 @@ class LLaMAInvoker: ObservableObject {
 
         try Task.checkCancellation()
 
+        var mirostat_µ = Float(2 * config.mirostatTargetEntropy)
         while tokens.count < config.tokens {
             var token = await runBlocking { [ctx] in
-                tokens.suffix(config.repeatWindow).withUnsafeBufferPointer { ptr in
-                    llama_sample_top_p_top_k(ctx, ptr.baseAddress, Int32(ptr.count), Int32(config.topK), Float(config.topP), Float(config.temperature), Float(config.repeatPenalty))
+                let logits = llama_get_logits(ctx)!
+                var candidatesArray = (0..<llama_n_vocab(ctx)).map { tokenId in
+                    llama_token_data(id: tokenId, logit: logits[Int(tokenId)], p: 0)
+                }
+                return candidatesArray.withUnsafeMutableBufferPointer { ptr in
+                    var candidates = llama_token_data_array(data: ptr.baseAddress, size: ptr.count, sorted: false)
+                    let savedLogits = self.safeTokens.map { logits[Int($0)] }
+
+                    tokens.suffix(config.repeatWindow).withUnsafeBufferPointer { ptr in
+                        llama_sample_repetition_penalty(ctx, &candidates, ptr.baseAddress, ptr.count, Float(config.repeatPenalty))
+                        llama_sample_frequency_and_presence_penalties(ctx, &candidates, ptr.baseAddress, ptr.count, Float(config.frequencyPenalty), Float(config.presencePenalty))
+                    }
+
+                    zip(self.safeTokens, savedLogits).forEach { logits[Int($0)] = $1 }
+
+                    let mirostat_m = 100
+                    switch config.sampler {
+                    case .greedy:
+                        return llama_sample_token_greedy(ctx, &candidates)
+                    case .mirostatV1:
+                        llama_sample_temperature(ctx, &candidates, Float(config.temperature))
+                        return llama_sample_token_mirostat(ctx, &candidates, Float(config.mirostatTargetEntropy), Float(config.mirostatLearningRate), Int32(mirostat_m), &mirostat_µ)
+                    case .mirostatV2:
+                        llama_sample_temperature(ctx, &candidates, Float(config.temperature))
+                        return llama_sample_token_mirostat_v2(ctx, &candidates, Float(config.mirostatTargetEntropy), Float(config.mirostatLearningRate), &mirostat_µ)
+                    case .classic:
+                        llama_sample_top_k(ctx, &candidates, Int32(config.topK), 1)
+                        llama_sample_tail_free(ctx, &candidates, Float(config.tfsZ), 1)
+                        llama_sample_typical(ctx, &candidates, Float(config.typicalP), 1)
+                        llama_sample_top_p(ctx, &candidates, Float(config.topP), 1)
+                        llama_sample_temperature(ctx, &candidates, Float(config.temperature))
+                        return llama_sample_token(ctx, &candidates)
+                    }
                 }
             }
             await process(token)
