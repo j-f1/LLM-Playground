@@ -227,7 +227,7 @@ class LLaMAInvoker: ObservableObject {
         try Task.checkCancellation()
 
         var mirostat_µ = Float(2 * config.mirostatTargetEntropy)
-        while tokens.count < config.tokens {
+        while tokens.count < config.tokens - 1 {
             var token = await runBlocking { [ctx] in
                 let logits = llama_get_logits(ctx)!
                 var candidatesArray = (0..<llama_n_vocab(ctx)).map { tokenId in
