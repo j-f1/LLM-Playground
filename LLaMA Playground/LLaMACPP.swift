@@ -15,6 +15,7 @@ class LLaMAInvoker: ObservableObject {
 
     @Published private var ctx: OpaquePointer!
     private var modelLoaded = false
+    private var savedTokens: [llama_token] = []
 
     var contextLength: Int32 {
         if let ctx {
@@ -37,6 +38,7 @@ class LLaMAInvoker: ObservableObject {
     func loadModel(at url: URL, f16: Bool) {
         guard !loadingModel else { return }
         loadingModel = true
+        savedTokens = []
         self.status = .starting
         DispatchQueue.global().async {
             if self.modelLoaded {
@@ -181,6 +183,7 @@ class LLaMAInvoker: ObservableObject {
 
         func process(_ token: llama_token) async {
             tokens.append(token)
+            savedTokens.append(token)
             output.append(contentsOf: sequence(state: llama_token_to_str(ctx, token), next: { ptr in
                 if ptr.pointee != 0 {
                     let char = ptr.pointee
@@ -210,7 +213,14 @@ class LLaMAInvoker: ObservableObject {
             }
         }
 
-        for var chunk in promptTokens.chunks(maxLength: config.batchSize) {
+        let common = zip(promptTokens, savedTokens).prefix(while: ==).count
+        savedTokens = []
+
+        for i in 0..<common {
+            await process(promptTokens[i])
+        }
+
+        for var chunk in promptTokens.dropFirst(common).chunks(maxLength: config.batchSize) {
 //            print("llama_eval(ctx, &[\(chunk.map(String.init).joined(separator: ", "))], \(chunk.count), \(tokens.count), \(config.threads))")
             try Task.checkCancellation()
             let ok = await runBlocking { [ctx] in
