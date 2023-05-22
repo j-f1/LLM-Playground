@@ -77,6 +77,7 @@ struct ContentView: View {
                     .padding(8)
                     .frame(minWidth: 300)
                     .background(Color(nsColor: .textBackgroundColor))
+                    .lineSpacing(3)
             }
             Divider()
             ScrollView {
