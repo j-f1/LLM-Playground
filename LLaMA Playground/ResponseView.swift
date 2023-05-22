@@ -57,15 +57,17 @@ struct ResponseView: View {
         }
     }
 
+    private func copy() {
+        #if os(iOS)
+        UIPasteboard.general.string = response.result
+        #else
+        NSPasteboard.general.clearContents()
+        NSPasteboard.general.setString(response.result, forType: .string)
+        #endif
+    }
+
     var body: some View {
-        let copyButton = Button(action: {
-            #if os(iOS)
-            UIPasteboard.general.string = response.result
-            #else
-            NSPasteboard.general.clearContents()
-            NSPasteboard.general.setString(response.result, forType: .string)
-            #endif
-        }) {
+        let copyButton = Button(action: copy) {
             Label("Copy", systemImage: "doc.on.doc")
         }
 
@@ -224,6 +226,7 @@ struct ResponseView: View {
         }
         .frame(minWidth: 676)
         .onAppear { annotation.scale = displayScale }
+        .onDisappear(perform: copy)
         .onChange(of: displayScale, perform: { annotation.scale = $0 })
         .onChange(of: response.finishReason == .cancelled, perform: { annotation.content.cancelled = $0 })
 
