@@ -266,6 +266,12 @@ class LLaMAInvoker: ObservableObject {
             }
             await process(token)
 
+            try Task.checkCancellation()
+            await runBlocking {
+                _ = llama_eval(self.ctx, &token, 1, Int32(tokens.count), config.threads)
+            }
+            try Task.checkCancellation()
+
             if token == llama_token_eos() {
                 let status = Status.done(response(.endOfText))
                 await MainActor.run {
