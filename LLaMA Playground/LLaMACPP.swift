@@ -35,7 +35,7 @@ class LLaMAInvoker: ObservableObject {
 
     let safeTokens = [llama_token_nl()]
 
-    func loadModel(at url: URL, f16: Bool) {
+    func loadModel(at url: URL) {
         guard !loadingModel else { return }
         loadingModel = true
         savedTokens = []
@@ -51,7 +51,7 @@ class LLaMAInvoker: ObservableObject {
             var params = llama_context_default_params()
             params.n_ctx = 2048
             params.seed = -1
-            params.f16_kv = f16
+            params.f16_kv = true
             let ctx = url.withUnsafeFileSystemRepresentation { path in
                 llama_init_from_file(path, params)
             }
