@@ -220,6 +220,8 @@ class LLaMAInvoker: ObservableObject {
             await process(promptTokens[i])
         }
 
+        print("skipped \(common) tokens: \(tokens.count)")
+
         for var chunk in promptTokens.dropFirst(common).chunks(maxLength: config.batchSize) {
 //            print("llama_eval(ctx, &[\(chunk.map(String.init).joined(separator: ", "))], \(chunk.count), \(tokens.count), \(config.threads))")
             try Task.checkCancellation()
