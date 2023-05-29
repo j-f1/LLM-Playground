@@ -213,7 +213,8 @@ class LLaMAInvoker: ObservableObject {
             }
         }
 
-        let common = zip(promptTokens, savedTokens).prefix(while: ==).count
+        // always evaluate last token, since otherwise really weird things happen
+        let common = max(0, zip(promptTokens, savedTokens).prefix(while: ==).count - 1)
         savedTokens = []
 
         for i in 0..<common {
